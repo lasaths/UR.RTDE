@@ -415,3 +415,501 @@ const char* ur_rtde_receive_get_last_error(ur_rtde_receive_t* handle) {
   if (!handle) return "Invalid handle";
   return handle->last_error.c_str();
 }
+
+// ============================================================================
+// RTDEControl - Kinematics
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_control_get_inverse_kinematics(
+    ur_rtde_control_t* handle,
+    const double* x,
+    size_t x_size,
+    double* q_out,
+    size_t q_size)
+{
+    if (!handle || !x || !q_out || x_size != 6 || q_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> x_vec(x, x + x_size);
+        std::vector<double> q = handle->control->getInverseKinematics(x_vec);
+        
+        if (q.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        
+        std::copy(q.begin(), q.end(), q_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getInverseKinematics: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_get_forward_kinematics(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    double* x_out,
+    size_t x_size)
+{
+    if (!handle || !q || !x_out || q_size != 6 || x_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> q_vec(q, q + q_size);
+        std::vector<double> x = handle->control->getForwardKinematics(q_vec);
+        
+        if (x.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        
+        std::copy(x.begin(), x.end(), x_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getForwardKinematics: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+bool ur_rtde_control_get_inverse_kinematics_has_solution(
+    ur_rtde_control_t* handle,
+    const double* x,
+    size_t x_size)
+{
+    if (!handle || !x || x_size != 6) {
+        return false;
+    }
+    
+    try {
+        std::vector<double> x_vec(x, x + x_size);
+        return handle->control->getInverseKinematicsHasSolution(x_vec);
+    } catch (...) {
+        return false;
+    }
+}
+
+// ============================================================================
+// RTDEControl - Additional Movement
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_control_servo_c(
+    ur_rtde_control_t* handle,
+    const double* pose,
+    size_t pose_size,
+    double speed,
+    double acceleration,
+    double blend)
+{
+    if (!handle || !pose || pose_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> pose_vec(pose, pose + pose_size);
+        bool result = handle->control->servoC(pose_vec, speed, acceleration, blend);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "servoC: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_servo_stop(
+    ur_rtde_control_t* handle,
+    double acceleration)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->control->servoStop(acceleration);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "servoStop: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_speed_stop(
+    ur_rtde_control_t* handle,
+    double acceleration)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->control->speedStop(acceleration);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "speedStop: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+// ============================================================================
+// RTDEControl - Safety & Status
+// ============================================================================
+
+bool ur_rtde_control_is_program_running(ur_rtde_control_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->control->isProgramRunning();
+    } catch (...) {
+        return false;
+    }
+}
+
+bool ur_rtde_control_is_steady(ur_rtde_control_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->control->isSteady();
+    } catch (...) {
+        return false;
+    }
+}
+
+uint32_t ur_rtde_control_get_robot_status(ur_rtde_control_t* handle)
+{
+    if (!handle) return 0;
+    try {
+        return handle->control->getRobotStatus();
+    } catch (...) {
+        return 0;
+    }
+}
+
+// ============================================================================
+// RTDEReceive - Extended Data
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_receive_get_target_q(
+    ur_rtde_receive_t* handle,
+    double* q_out,
+    size_t q_size)
+{
+    if (!handle || !q_out || q_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> q = handle->receive->getTargetQ();
+        if (q.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(q.begin(), q.end(), q_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getTargetQ: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_receive_get_target_tcp_pose(
+    ur_rtde_receive_t* handle,
+    double* pose_out,
+    size_t pose_size)
+{
+    if (!handle || !pose_out || pose_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> pose = handle->receive->getTargetTCPPose();
+        if (pose.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(pose.begin(), pose.end(), pose_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getTargetTCPPose: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_receive_get_actual_tcp_force(
+    ur_rtde_receive_t* handle,
+    double* force_out,
+    size_t force_size)
+{
+    if (!handle || !force_out || force_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> force = handle->receive->getActualTCPForce();
+        if (force.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(force.begin(), force.end(), force_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getActualTCPForce: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_receive_get_joint_temperatures(
+    ur_rtde_receive_t* handle,
+    double* temps_out,
+    size_t temps_size)
+{
+    if (!handle || !temps_out || temps_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> temps = handle->receive->getJointTemperatures();
+        if (temps.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(temps.begin(), temps.end(), temps_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getJointTemperatures: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_receive_get_actual_current(
+    ur_rtde_receive_t* handle,
+    double* current_out,
+    size_t current_size)
+{
+    if (!handle || !current_out || current_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    
+    try {
+        std::vector<double> current = handle->receive->getActualCurrent();
+        if (current.size() != 6) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(current.begin(), current.end(), current_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getActualCurrent: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+// ============================================================================
+// RTDEReceive - Safety Status
+// ============================================================================
+
+bool ur_rtde_receive_is_protective_stopped(ur_rtde_receive_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->receive->isProtectiveStopped();
+    } catch (...) {
+        return false;
+    }
+}
+
+bool ur_rtde_receive_is_emergency_stopped(ur_rtde_receive_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->receive->isEmergencyStopped();
+    } catch (...) {
+        return false;
+    }
+}
+
+uint32_t ur_rtde_receive_get_robot_status(ur_rtde_receive_t* handle)
+{
+    if (!handle) return 0;
+    try {
+        return handle->receive->getRobotStatus();
+    } catch (...) {
+        return 0;
+    }
+}
+
+uint32_t ur_rtde_receive_get_safety_status_bits(ur_rtde_receive_t* handle)
+{
+    if (!handle) return 0;
+    try {
+        return handle->receive->getSafetyStatusBits();
+    } catch (...) {
+        return 0;
+    }
+}
+
+// ============================================================================
+// RTDEReceive - Analog I/O
+// ============================================================================
+
+double ur_rtde_receive_get_standard_analog_input(
+    ur_rtde_receive_t* handle,
+    uint8_t input_id)
+{
+    if (!handle) return 0.0;
+    try {
+        if (input_id == 0) {
+            return handle->receive->getStandardAnalogInput0();
+        } else if (input_id == 1) {
+            return handle->receive->getStandardAnalogInput1();
+        }
+        return 0.0;
+    } catch (...) {
+        return 0.0;
+    }
+}
+
+double ur_rtde_receive_get_standard_analog_output(
+    ur_rtde_receive_t* handle,
+    uint8_t output_id)
+{
+    if (!handle) return 0.0;
+    try {
+        if (output_id == 0) {
+            return handle->receive->getStandardAnalogOutput0();
+        } else if (output_id == 1) {
+            return handle->receive->getStandardAnalogOutput1();
+        }
+        return 0.0;
+    } catch (...) {
+        return 0.0;
+    }
+}
+
+// ============================================================================
+// RTDEIO Interface
+// ============================================================================
+
+#include <ur_rtde/rtde_io_interface.h>
+
+struct ur_rtde_io {
+    std::unique_ptr<ur_rtde::RTDEIOInterface> io;
+};
+
+ur_rtde_io_t* ur_rtde_io_create(
+    const char* hostname,
+    uint16_t flags)
+{
+    if (!hostname) return nullptr;
+    
+    try {
+        auto handle = new ur_rtde_io();
+        bool verbose = (flags & UR_RTDE_FLAG_VERBOSE) != 0;
+        handle->io = std::make_unique<ur_rtde::RTDEIOInterface>(hostname, verbose);
+        return handle;
+    } catch (const std::exception& e) {
+        std::cerr << "RTDEIO create failed: " << e.what() << std::endl;
+        return nullptr;
+    }
+}
+
+void ur_rtde_io_destroy(ur_rtde_io_t* handle)
+{
+    delete handle;
+}
+
+bool ur_rtde_io_is_connected(ur_rtde_io_t* handle)
+{
+    return handle && handle->io;
+}
+
+ur_rtde_status_t ur_rtde_io_set_standard_digital_out(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    bool signal_level)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->io->setStandardDigitalOut(output_id, signal_level);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setStandardDigitalOut: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_tool_digital_out(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    bool signal_level)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->io->setToolDigitalOut(output_id, signal_level);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setToolDigitalOut: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_analog_output_voltage(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    double voltage_ratio)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->io->setAnalogOutputVoltage(output_id, voltage_ratio);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setAnalogOutputVoltage: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_analog_output_current(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    double current_ratio)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->io->setAnalogOutputCurrent(output_id, current_ratio);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setAnalogOutputCurrent: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_speed_slider(
+    ur_rtde_io_t* handle,
+    double speed)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+    
+    try {
+        bool result = handle->io->setSpeedSlider(speed);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setSpeedSlider: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+void ur_rtde_io_disconnect(ur_rtde_io_t* handle)
+{
+    if (handle && handle->io) {
+        handle->io->disconnect();
+    }
+}

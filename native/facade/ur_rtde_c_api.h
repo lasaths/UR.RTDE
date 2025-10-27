@@ -352,6 +352,152 @@ UR_RTDE_API const char* ur_rtde_control_get_last_error(ur_rtde_control_t* handle
  */
 UR_RTDE_API const char* ur_rtde_receive_get_last_error(ur_rtde_receive_t* handle);
 
+// ============================================================================
+// RTDEControl - Kinematics
+// ============================================================================
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_inverse_kinematics(
+    ur_rtde_control_t* handle,
+    const double* x,
+    size_t x_size,
+    double* q_out,
+    size_t q_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_forward_kinematics(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    double* x_out,
+    size_t x_size);
+
+UR_RTDE_API bool ur_rtde_control_get_inverse_kinematics_has_solution(
+    ur_rtde_control_t* handle,
+    const double* x,
+    size_t x_size);
+
+// ============================================================================
+// RTDEControl - Additional Movement
+// ============================================================================
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_servo_c(
+    ur_rtde_control_t* handle,
+    const double* pose,
+    size_t pose_size,
+    double speed,
+    double acceleration,
+    double blend);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_servo_stop(
+    ur_rtde_control_t* handle,
+    double acceleration);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_speed_stop(
+    ur_rtde_control_t* handle,
+    double acceleration);
+
+// ============================================================================
+// RTDEControl - Safety & Status
+// ============================================================================
+
+UR_RTDE_API bool ur_rtde_control_is_program_running(ur_rtde_control_t* handle);
+
+UR_RTDE_API bool ur_rtde_control_is_steady(ur_rtde_control_t* handle);
+
+UR_RTDE_API uint32_t ur_rtde_control_get_robot_status(ur_rtde_control_t* handle);
+
+// ============================================================================
+// RTDEReceive - Extended Data
+// ============================================================================
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_target_q(
+    ur_rtde_receive_t* handle,
+    double* q_out,
+    size_t q_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_target_tcp_pose(
+    ur_rtde_receive_t* handle,
+    double* pose_out,
+    size_t pose_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_actual_tcp_force(
+    ur_rtde_receive_t* handle,
+    double* force_out,
+    size_t force_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_joint_temperatures(
+    ur_rtde_receive_t* handle,
+    double* temps_out,
+    size_t temps_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_actual_current(
+    ur_rtde_receive_t* handle,
+    double* current_out,
+    size_t current_size);
+
+// ============================================================================
+// RTDEReceive - Safety Status
+// ============================================================================
+
+UR_RTDE_API bool ur_rtde_receive_is_protective_stopped(ur_rtde_receive_t* handle);
+
+UR_RTDE_API bool ur_rtde_receive_is_emergency_stopped(ur_rtde_receive_t* handle);
+
+UR_RTDE_API uint32_t ur_rtde_receive_get_robot_status(ur_rtde_receive_t* handle);
+
+UR_RTDE_API uint32_t ur_rtde_receive_get_safety_status_bits(ur_rtde_receive_t* handle);
+
+// ============================================================================
+// RTDEReceive - Analog I/O
+// ============================================================================
+
+UR_RTDE_API double ur_rtde_receive_get_standard_analog_input(
+    ur_rtde_receive_t* handle,
+    uint8_t input_id);
+
+UR_RTDE_API double ur_rtde_receive_get_standard_analog_output(
+    ur_rtde_receive_t* handle,
+    uint8_t output_id);
+
+// ============================================================================
+// RTDEIO Interface
+// ============================================================================
+
+typedef struct ur_rtde_io ur_rtde_io_t;
+
+UR_RTDE_API ur_rtde_io_t* ur_rtde_io_create(
+    const char* hostname,
+    uint16_t flags);
+
+UR_RTDE_API void ur_rtde_io_destroy(ur_rtde_io_t* handle);
+
+UR_RTDE_API bool ur_rtde_io_is_connected(ur_rtde_io_t* handle);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_standard_digital_out(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    bool signal_level);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_tool_digital_out(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    bool signal_level);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_analog_output_voltage(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    double voltage_ratio);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_analog_output_current(
+    ur_rtde_io_t* handle,
+    uint8_t output_id,
+    double current_ratio);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_speed_slider(
+    ur_rtde_io_t* handle,
+    double speed);
+
+UR_RTDE_API void ur_rtde_io_disconnect(ur_rtde_io_t* handle);
+
 #ifdef __cplusplus
 }
 #endif
