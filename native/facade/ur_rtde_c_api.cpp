@@ -246,10 +246,10 @@ ur_rtde_status_t ur_rtde_control_set_payload(
   , handle, UR_RTDE_ERROR_COMMAND_FAILED);
 }
 
-ur_rtde_status_t ur_rtde_control_trigger_watchdog(ur_rtde_control_t* handle) {
+ur_rtde_status_t ur_rtde_control_kick_watchdog(ur_rtde_control_t* handle) {
   CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
   TRY_CATCH_BLOCK(
-    handle->control->triggerWatchdog();
+    handle->control->kickWatchdog();
     return UR_RTDE_OK;
   , handle, UR_RTDE_ERROR_COMMAND_FAILED);
 }
@@ -393,7 +393,7 @@ bool ur_rtde_receive_get_standard_digital_in(
 ) {
   if (!handle || index < 0 || index > 7) return false;
   try {
-    return handle->receive->getStandardDigitalIn(index);
+    return handle->receive->getDigitalInState(index);
   } catch (...) {
     return false;
   }
@@ -405,7 +405,7 @@ bool ur_rtde_receive_get_standard_digital_out(
 ) {
   if (!handle || index < 0 || index > 7) return false;
   try {
-    return handle->receive->getStandardDigitalOut(index);
+    return handle->receive->getDigitalOutState(index);
   } catch (...) {
     return false;
   }

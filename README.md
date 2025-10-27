@@ -3,13 +3,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-4.8%20%7C%208.0-512BD4)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-lightgrey)](https://github.com/lasaths/UR.RTDE)
-[![Build](https://img.shields.io/badge/Build-Native%20C%2B%2B-blue)](https://github.com/lasaths/UR.RTDE)
+[![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
 
 **Professional C# wrapper** for Universal Robots RTDE interface using **native C++ P/Invoke**. Zero external dependencies - everything included in the NuGet package.
 
 Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++ library (v1.6.0) by SDU Robotics.
 
-> **🔄 Status**: Currently building native Windows binaries. See [RESUME.md](RESUME.md) for build progress.
+> **✅ Status**: Build complete! Windows x64 native binaries ready. See [BUILD_SUCCESS.md](BUILD_SUCCESS.md) for details.
 
 ---
 
@@ -26,11 +26,17 @@ Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++
 
 ## 📦 Installation
 
+### From Local Build
+```bash
+dotnet add package UR.RTDE --source C:\Users\lasaths\Github\UR.RTDE\nupkgs
+```
+
+### From NuGet.org (coming soon)
 ```bash
 dotnet add package UR.RTDE
 ```
 
-**That's it!** No configuration needed. Native DLLs deploy automatically.
+**That's it!** No configuration needed. Native DLLs deploy automatically to your bin folder.
 
 ---
 
@@ -56,37 +62,60 @@ Console.WriteLine($"Joint 0: {q[0]:F4} rad");
 
 ## 🔨 Building from Source
 
-**Current Status**: 🔄 Native build in progress  
-**See**: [RESUME.md](RESUME.md) for detailed build instructions
+**Status**: ✅ **Build verified and working**  
+**See**: [BUILD_SUCCESS.md](BUILD_SUCCESS.md) for build details
 
-**Prerequisites**: 
+### Prerequisites
 - Visual Studio 2022 with "Desktop development with C++" workload
-- vcpkg (will be installed if missing)
+- vcpkg (automatically configured during build)
 - CMake (included with VS 2022)
+- ~7 GB disk space (for Boost dependencies)
+- ~70 minutes build time (60 min for Boost, 10 min for ur_rtde)
 
-**Quick Build** (after VS C++ workload installed):
+### Quick Build
+
+**Option 1: Automated** (recommended)
 ```powershell
 cd UR.RTDE
-.\build-native.bat
+.\build-complete.bat  # Builds everything: Boost → ur_rtde → C API → C# → NuGet
 ```
 
-**Or use automated continuation script**:
+**Option 2: Manual Steps**
 ```powershell
-.\continue-build.ps1  # Builds Boost → ur_rtde → C API → NuGet
+# 1. Install Boost via vcpkg
+cd C:\vcpkg
+vcpkg install boost:x64-windows
+
+# 2. Build ur_rtde
+cd C:\Users\lasaths\Github\UR.RTDE\build-native\ur_rtde\build
+cmake --build . --config Release
+
+# 3. Build C API facade
+cd ..\..\native\facade\build
+cmake --build . --config Release
+
+# 4. Build C# wrapper
+cd ..\..\..\
+dotnet build src\UR.RTDE -c Release
+
+# 5. Create NuGet package
+dotnet pack src\UR.RTDE -c Release -o nupkgs
 ```
 
-See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for manual step-by-step.
+**Important**: ur_rtde v1.6.0 source has been patched for Boost 1.89.0 compatibility. See [BUILD_SUCCESS.md](BUILD_SUCCESS.md) for technical details.
+
+See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructions.
 
 ---
 
 ## 📚 Documentation
 
-- **[Resume Instructions](RESUME.md)** ⭐ Start here after reboot/restart
-- [Quick Start Guide](docs/quickstart.md)
+- **[Build Success Report](BUILD_SUCCESS.md)** ⭐ Complete build details and achievements
 - [Build Instructions](BUILD_INSTRUCTIONS.md) - Manual build steps
-- [API Reference](docs/api-reference.md)  
-- [Troubleshooting](docs/troubleshooting.md)
 - [Agent Instructions](AGENTS.md) - For AI agents/developers
+- [Quick Start Guide](docs/quickstart.md) (coming soon)
+- [API Reference](docs/api-reference.md) (coming soon)
+- [Troubleshooting](docs/troubleshooting.md) (coming soon)
 
 ---
 

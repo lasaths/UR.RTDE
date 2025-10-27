@@ -225,9 +225,9 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_payload(
 );
 
 /**
- * TriggerWatchdog - Reset watchdog timer
+ * KickWatchdog - Reset watchdog timer
  */
-UR_RTDE_API ur_rtde_status_t ur_rtde_control_trigger_watchdog(
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_kick_watchdog(
   ur_rtde_control_t* handle
 );
 
