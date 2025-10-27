@@ -1,0 +1,110 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                      UR.RTDE BUILD - RESTART CHEATSHEET                   ║
+║                        Last Updated: 2025-10-27 17:39 UTC                 ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📍 LOCATION
+-----------
+C:\Users\lasaths\Github\UR.RTDE
+
+
+🎯 FIRST THING TO DO
+--------------------
+Open this file → C:\Users\lasaths\Github\UR.RTDE\RESUME.md
+
+
+🔍 CHECK VS INSTALLATION STATUS
+--------------------------------
+Test-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat"
+
+✅ If True  → VS C++ workload installed! Go to "RUN BUILD" section below
+❌ If False → VS still installing or failed. See RESUME.md Step 2
+
+
+🚀 RUN BUILD (after VS completes)
+----------------------------------
+cd C:\Users\lasaths\Github\UR.RTDE
+.\continue-build.ps1
+
+⏱️  This will take ~45 minutes and does:
+   1. Install Boost via vcpkg (~20 min)
+   2. Build ur_rtde C++ library (~7 min)
+   3. Build C API facade (~2 min)
+   4. Copy DLLs to NuGet folders (~1 min)
+   5. Test with URSim @ 172.18.0.2 (~5 min)
+   6. Create NuGet package (~1 min)
+
+
+✅ SUCCESS LOOKS LIKE
+---------------------
+nupkgs/UR.RTDE.1.0.0.nupkg created (~1.5 MB)
+
+Test:
+  cd samples\Console
+  dotnet run --configuration Release -- 172.18.0.2
+
+
+📊 CURRENT STATUS (as of restart)
+---------------------------------
+✅ Python.NET completely removed
+✅ Native C# P/Invoke wrapper complete
+✅ C API facade designed and coded
+✅ Build scripts ready (build-native.bat, continue-build.ps1)
+✅ ur_rtde v1.6.0 source cloned
+✅ All documentation updated
+✅ 10 commits pushed to git
+
+🔄 VS 2022 C++ workload installing (needs vcvarsall.bat)
+⏳ Boost, ur_rtde, packaging waiting on VS
+
+
+🐛 TROUBLESHOOTING
+------------------
+Problem: VS install failed
+→ See RESUME.md Step 2B - Re-run VS Installer
+
+Problem: vcpkg can't find VS
+→ See RESUME.md "Troubleshooting" section - Use VS Developer PowerShell
+
+Problem: URSim not reachable
+→ docker ps | Select-String ursim
+→ Check URSim @ http://172.18.0.2:6080/vnc.html
+
+
+📚 FULL DOCS
+------------
+RESUME.md              ← START HERE (complete instructions)
+AGENTS.md              ← For AI agents (updated build status)
+README.md              ← User-facing quickstart
+BUILD_INSTRUCTIONS.md  ← Manual build steps
+NATIVE_BUILD_STATUS.md ← Detailed build log
+
+
+🔗 URSIM
+--------
+IP: 172.18.0.2
+UI: http://172.18.0.2:6080/vnc.html?host=172.18.0.2&port=6080
+Port: 30004 (RTDE interface)
+
+
+📦 EXPECTED OUTPUT
+------------------
+nupkgs/UR.RTDE.1.0.0.nupkg containing:
+  ├── lib/net48/UR.RTDE.dll
+  ├── lib/net8.0/UR.RTDE.dll
+  └── runtimes/win-x64/native/
+      ├── ur_rtde_c_api.dll (~150 KB)
+      └── rtde.dll (~1.2 MB)
+
+
+💾 GIT STATUS
+-------------
+Branch: master
+Commits: 10 (all pushed)
+Latest: "Add RESUME.md and update all docs for reboot safety"
+Working dir: Clean
+
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  NEXT ACTION: Check if vcvarsall.bat exists, then run continue-build.ps1 ║
+╚═══════════════════════════════════════════════════════════════════════════╝
