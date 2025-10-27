@@ -161,6 +161,143 @@ namespace UR.RTDE
             return NativeMethods.ur_rtde_receive_get_standard_digital_out(_handle, index);
         }
 
+        // ====================================================================
+        // Extended Data
+        // ====================================================================
+
+        /// <summary>
+        /// Get target (commanded) joint positions
+        /// </summary>
+        public double[] GetTargetQ()
+        {
+            ThrowIfDisposed();
+            var q = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_target_q(_handle, q));
+            return q;
+        }
+
+        /// <summary>
+        /// Get target (commanded) TCP pose
+        /// </summary>
+        public double[] GetTargetTcpPose()
+        {
+            ThrowIfDisposed();
+            var pose = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_target_tcp_pose(_handle, pose));
+            return pose;
+        }
+
+        /// <summary>
+        /// Get actual TCP force
+        /// </summary>
+        public double[] GetActualTcpForce()
+        {
+            ThrowIfDisposed();
+            var force = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_tcp_force(_handle, force));
+            return force;
+        }
+
+        /// <summary>
+        /// Get joint temperatures
+        /// </summary>
+        public double[] GetJointTemperatures()
+        {
+            ThrowIfDisposed();
+            var temps = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_joint_temperatures(_handle, temps));
+            return temps;
+        }
+
+        /// <summary>
+        /// Get actual joint motor currents
+        /// </summary>
+        public double[] GetActualCurrent()
+        {
+            ThrowIfDisposed();
+            var current = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_current(_handle, current));
+            return current;
+        }
+
+        // ====================================================================
+        // Safety Status
+        // ====================================================================
+
+        /// <summary>
+        /// Check if robot is in protective stop
+        /// </summary>
+        public bool IsProtectiveStopped
+        {
+            get
+            {
+                if (_disposed) return false;
+                return NativeMethods.ur_rtde_receive_is_protective_stopped(_handle);
+            }
+        }
+
+        /// <summary>
+        /// Check if robot is in emergency stop
+        /// </summary>
+        public bool IsEmergencyStopped
+        {
+            get
+            {
+                if (_disposed) return false;
+                return NativeMethods.ur_rtde_receive_is_emergency_stopped(_handle);
+            }
+        }
+
+        /// <summary>
+        /// Get detailed robot status bits
+        /// </summary>
+        public uint GetRobotStatus()
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_receive_get_robot_status(_handle);
+        }
+
+        /// <summary>
+        /// Get safety status bits
+        /// </summary>
+        public uint GetSafetyStatusBits()
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_receive_get_safety_status_bits(_handle);
+        }
+
+        // ====================================================================
+        // Analog I/O
+        // ====================================================================
+
+        /// <summary>
+        /// Get standard analog input value
+        /// </summary>
+        /// <param name="index">Input index (0-1)</param>
+        public double GetStandardAnalogInput(int index)
+        {
+            ThrowIfDisposed();
+            if (index < 0 || index > 1)
+                throw new ArgumentOutOfRangeException(nameof(index), "Index must be 0 or 1");
+            return NativeMethods.ur_rtde_receive_get_standard_analog_input(_handle, (byte)index);
+        }
+
+        /// <summary>
+        /// Get standard analog output value
+        /// </summary>
+        /// <param name="index">Output index (0-1)</param>
+        public double GetStandardAnalogOutput(int index)
+        {
+            ThrowIfDisposed();
+            if (index < 0 || index > 1)
+                throw new ArgumentOutOfRangeException(nameof(index), "Index must be 0 or 1");
+            return NativeMethods.ur_rtde_receive_get_standard_analog_output(_handle, (byte)index);
+        }
+
+        // ====================================================================
+        // Background Receive Thread
+        // ====================================================================
+
         /// <summary>
         /// Start background thread to continuously receive robot state
         /// </summary>

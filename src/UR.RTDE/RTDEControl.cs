@@ -187,6 +187,130 @@ namespace UR.RTDE
             CheckStatus(NativeMethods.ur_rtde_control_trigger_watchdog(_handle));
         }
 
+        // ====================================================================
+        // Kinematics
+        // ====================================================================
+
+        /// <summary>
+        /// Calculate inverse kinematics - convert TCP pose to joint positions
+        /// </summary>
+        /// <param name="pose">TCP pose [x, y, z, rx, ry, rz] in meters and radians</param>
+        /// <returns>Joint positions [6] in radians, or throws if no solution</returns>
+        public double[] GetInverseKinematics(double[] pose)
+        {
+            ThrowIfDisposed();
+            ValidateArray(pose, 6, nameof(pose));
+            var q = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_control_get_inverse_kinematics(_handle, pose, q));
+            return q;
+        }
+
+        /// <summary>
+        /// Calculate forward kinematics - convert joint positions to TCP pose
+        /// </summary>
+        /// <param name="q">Joint positions [6] in radians</param>
+        /// <returns>TCP pose [x, y, z, rx, ry, rz] in meters and radians</returns>
+        public double[] GetForwardKinematics(double[] q)
+        {
+            ThrowIfDisposed();
+            ValidateArray(q, 6, nameof(q));
+            var pose = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_control_get_forward_kinematics(_handle, q, pose));
+            return pose;
+        }
+
+        /// <summary>
+        /// Check if inverse kinematics has a valid solution for given pose
+        /// </summary>
+        /// <param name="pose">TCP pose [x, y, z, rx, ry, rz] to test</param>
+        /// <returns>True if IK solution exists, false otherwise</returns>
+        public bool HasInverseKinematicsSolution(double[] pose)
+        {
+            ThrowIfDisposed();
+            ValidateArray(pose, 6, nameof(pose));
+            return NativeMethods.ur_rtde_control_get_inverse_kinematics_has_solution(_handle, pose);
+        }
+
+        // ====================================================================
+        // Advanced Movement
+        // ====================================================================
+
+        /// <summary>
+        /// Servo in Cartesian space (circular blending)
+        /// </summary>
+        /// <param name="pose">Target TCP pose [x, y, z, rx, ry, rz]</param>
+        /// <param name="speed">Tool speed [m/s]</param>
+        /// <param name="acceleration">Tool acceleration [m/s^2]</param>
+        /// <param name="blend">Blend radius [m] for path smoothing</param>
+        public void ServoC(double[] pose, double speed = 0.25, double acceleration = 1.2, double blend = 0.0)
+        {
+            ThrowIfDisposed();
+            ValidateArray(pose, 6, nameof(pose));
+            CheckStatus(NativeMethods.ur_rtde_control_servo_c(_handle, pose, speed, acceleration, blend));
+        }
+
+        /// <summary>
+        /// Stop servo movement
+        /// </summary>
+        /// <param name="acceleration">Deceleration [rad/s^2 or m/s^2]</param>
+        public void ServoStop(double acceleration = 10.0)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_servo_stop(_handle, acceleration));
+        }
+
+        /// <summary>
+        /// Stop speed movement (SpeedJ/SpeedL)
+        /// </summary>
+        /// <param name="acceleration">Deceleration [rad/s^2 or m/s^2]</param>
+        public void SpeedStop(double acceleration = 10.0)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_speed_stop(_handle, acceleration));
+        }
+
+        // ====================================================================
+        // Status & Safety
+        // ====================================================================
+
+        /// <summary>
+        /// Check if a program is currently running on the robot
+        /// </summary>
+        public bool IsProgramRunning
+        {
+            get
+            {
+                if (_disposed) return false;
+                return NativeMethods.ur_rtde_control_is_program_running(_handle);
+            }
+        }
+
+        /// <summary>
+        /// Check if robot is in steady state (not moving)
+        /// </summary>
+        public bool IsSteady
+        {
+            get
+            {
+                if (_disposed) return false;
+                return NativeMethods.ur_rtde_control_is_steady(_handle);
+            }
+        }
+
+        /// <summary>
+        /// Get detailed robot status bits
+        /// </summary>
+        /// <returns>Robot status bitmask</returns>
+        public uint GetRobotStatus()
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_control_get_robot_status(_handle);
+        }
+
+        // ====================================================================
+        // Helper Methods
+        // ====================================================================
+
         private void CheckStatus(NativeMethods.Status status)
         {
             if (status == NativeMethods.Status.OK)

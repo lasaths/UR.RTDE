@@ -195,6 +195,174 @@ namespace UR.RTDE.Native
         internal static extern IntPtr ur_rtde_receive_get_last_error(IntPtr handle);
 
         // ====================================================================
+        // RTDEControl - Kinematics
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_inverse_kinematics(
+            IntPtr handle,
+            [In] double[] x,
+            [Out] double[] q_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_forward_kinematics(
+            IntPtr handle,
+            [In] double[] q,
+            [Out] double[] x_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_control_get_inverse_kinematics_has_solution(
+            IntPtr handle,
+            [In] double[] x);
+
+        // ====================================================================
+        // RTDEControl - Advanced Movement
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_servo_c(
+            IntPtr handle,
+            [In] double[] pose,
+            double speed,
+            double acceleration,
+            double blend);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_servo_stop(
+            IntPtr handle,
+            double acceleration);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_speed_stop(
+            IntPtr handle,
+            double acceleration);
+
+        // ====================================================================
+        // RTDEControl - Safety & Status
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_control_is_program_running(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_control_is_steady(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint ur_rtde_control_get_robot_status(IntPtr handle);
+
+        // ====================================================================
+        // RTDEReceive - Extended Data
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_target_q(
+            IntPtr handle,
+            [Out] double[] q_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_target_tcp_pose(
+            IntPtr handle,
+            [Out] double[] pose_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_actual_tcp_force(
+            IntPtr handle,
+            [Out] double[] force_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_joint_temperatures(
+            IntPtr handle,
+            [Out] double[] temps_out);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_actual_current(
+            IntPtr handle,
+            [Out] double[] current_out);
+
+        // ====================================================================
+        // RTDEReceive - Safety Status
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_receive_is_protective_stopped(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_receive_is_emergency_stopped(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint ur_rtde_receive_get_robot_status(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint ur_rtde_receive_get_safety_status_bits(IntPtr handle);
+
+        // ====================================================================
+        // RTDEReceive - Analog I/O
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern double ur_rtde_receive_get_standard_analog_input(
+            IntPtr handle,
+            byte input_id);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern double ur_rtde_receive_get_standard_analog_output(
+            IntPtr handle,
+            byte output_id);
+
+        // ====================================================================
+        // RTDEIO Interface
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern IntPtr ur_rtde_io_create(
+            string hostname,
+            ushort flags);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void ur_rtde_io_destroy(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_io_is_connected(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_standard_digital_out(
+            IntPtr handle,
+            byte output_id,
+            [MarshalAs(UnmanagedType.I1)] bool signal_level);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_tool_digital_out(
+            IntPtr handle,
+            byte output_id,
+            [MarshalAs(UnmanagedType.I1)] bool signal_level);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_analog_output_voltage(
+            IntPtr handle,
+            byte output_id,
+            double voltage_ratio);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_analog_output_current(
+            IntPtr handle,
+            byte output_id,
+            double current_ratio);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_speed_slider(
+            IntPtr handle,
+            double speed);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void ur_rtde_io_disconnect(IntPtr handle);
+
+        // ====================================================================
         // Helper Methods
         // ====================================================================
 
