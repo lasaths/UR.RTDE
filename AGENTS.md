@@ -1,32 +1,31 @@
 # AGENTS.md — UR.RTDE Wrapper (Rhino 7 & 8, NuGet)
 
-**Status**: ✅ **COMPLETE** (Python.NET Bridge Implementation)  
+**Status**: 🔄 **IN PROGRESS** (Native C++ Wrapper Implementation)  
 **Date**: 2025-10-27  
-**Version**: 1.0.0  
-**Validation**: URSim e-Series 5.23.0
+**Version**: 2.0.0 (Native)  
+**Validation**: URSim e-Series 5.23.0 @ 172.18.0.2
 
 ---
 
 ## Overview
 
-Expert **software engineering agent** delivered a **C# wrapper** around the **SDU Robotics `ur_rtde` Python library** (v1.6.2) that works in:
+Expert **software engineering agent** is delivering a **native C# wrapper** around the **SDU Robotics `ur_rtde` C++ library** (v1.6.0) that works in:
 
 * **Rhino 7** (.NET Framework **4.8**, Windows x64)
-* **Rhino 8** (.NET **8**) on **Windows x64**, **macOS (arm64/x64)**, and **Linux**
+* **Rhino 8** (.NET **8**) on **Windows x64** and **macOS (arm64)**
 
-Delivered a **NuGet package** named **`UR.RTDE`** with **Python.NET bridge** implementation. Achieved reliability, high performance (66 kHz), and clean developer ergonomics.
+Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** implementation. Zero Python dependency, pure native performance, single NuGet install.
 
 ## Objectives (what to build)
 
-1. A thin **native C ABI façade** over `ur_rtde` (opaque handles, arrays, int status codes; no exceptions crossing ABI).
-2. A managed **C# wrapper** (namespace/assembly **`UR.RTDE`**) exposing:
-
+1. ✅ A thin **native C ABI façade** over `ur_rtde` (opaque handles, arrays, int status codes; no exceptions crossing ABI) - **DESIGNED**
+2. ✅ A managed **C# wrapper** (namespace/assembly **`UR.RTDE`**) exposing: - **IMPLEMENTED**
    * **Control**: MoveJ, MoveL, SpeedJ/L, StopJ/L, SetTcp, SetPayload, watchdog.
    * **Receive**: ActualQ, ActualTcpPose, RobotMode, SafetyMode, RuntimeState, essential IO reads.
    * **IO**: basic digital IO where supported.
    * **Lifecycle**: Connect/Disconnect, timeouts, reconnect policy.
-3. **Packaging** as a single **NuGet** with RID-specific native assets to "just work" in Rhino 7/8.
-4. **Samples & docs** that prove end-to-end: connect → stream joints @ default rate → MoveJ → Stop.
+3. ⏳ **Packaging** as a single **NuGet** with RID-specific native assets to "just work" in Rhino 7/8. - **IN PROGRESS**
+4. ✅ **Samples & docs** that prove end-to-end: connect → stream joints @ default rate → MoveJ → Stop. - **READY**
 
 ## Constraints & scope
 
@@ -72,59 +71,61 @@ Delivered a **NuGet package** named **`UR.RTDE`** with **Python.NET bridge** imp
   * Version matrix (Rhino versions, .NET, `ur_rtde` commit).
 * **CI** that builds native + managed, runs unit tests, and packs the NuGet.
 
-## Acceptance Criteria - Validation Results ✅
+## Acceptance Criteria - Current Status
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| **Loads in Rhino 7 (.NET 4.8)** | ✅ READY | Multi-TFM build (net48/net8.0) |
-| **Loads in Rhino 8 (.NET 8)** | ✅ READY | Tested on Windows .NET 8 |
-| **Cross-platform** | ✅ READY | Python.NET works on Windows/macOS/Linux |
-| **Streaming ≥5 min @ 500 Hz** | ✅ EXCEEDED | **66,409 Hz** for 3s (validated) |
-| **No UI blocking** | ✅ PASSED | Async Python calls via GIL |
-| **MoveJ execution** | ✅ PASSED | Moved J0 by 5° in URSim |
-| **Stop execution** | ✅ PASSED | StopJ executed in URSim |
-| **No manual DLL copy** | ✅ PASSED | Python.NET auto-loads ur_rtde |
-| **Clear documentation** | ✅ COMPLETE | README, quickstart, troubleshooting |
-| **No drops** | ✅ PASSED | 199,228 samples, zero drops |
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| **Loads in Rhino 7 (.NET 4.8)** | ⏳ PENDING | Multi-TFM build ready (net48/net8.0) |
+| **Loads in Rhino 8 (.NET 8)** | ⏳ PENDING | Ready to test after native build |
+| **Cross-platform** | 🔄 PARTIAL | Windows native ready, macOS pending |
+| **Streaming ≥5 min @ 500 Hz** | ⏳ PENDING | Will test after build completes |
+| **No UI blocking** | ✅ READY | Async/Task-based C# API designed |
+| **MoveJ execution** | ⏳ PENDING | URSim @ 172.18.0.2 ready for testing |
+| **Stop execution** | ⏳ PENDING | URSim ready |
+| **No manual DLL copy** | ✅ READY | NuGet runtimes/ structure configured |
+| **Clear documentation** | ✅ COMPLETE | README, BUILD_INSTRUCTIONS, guides |
+| **No drops** | ⏳ PENDING | Will validate streaming reliability |
 
-**Overall**: ✅ **ALL CRITERIA MET OR EXCEEDED**
+**Overall**: ⏳ **BLOCKED ON: Visual Studio C++ Workload Installation**
 
-## Work Plan - Completed ✅
+## Work Plan - Current Progress
 
-### Phase 1: Foundation (COMPLETE)
-1. ✅ **Recon & pin**: Identified ur_rtde v1.6.2 (Python library); MIT license
-2. ✅ **Repo skeleton**: Created solution with `src/UR.RTDE/`, `samples/`, `docs/`, `.github/workflows/`
-3. ✅ **Architecture decision**: Chose **Python.NET bridge** over native C++ for rapid delivery
+### Phase 1: Foundation ✅ COMPLETE
+1. ✅ **Recon & pin**: ur_rtde v1.6.0 (C++ library); MIT license
+2. ✅ **Repo skeleton**: Created solution with `src/UR.RTDE/`, `samples/`, `docs/`, `native/facade/`, `build-native/`
+3. ✅ **Architecture decision**: **Native C++ P/Invoke** (zero Python dependency)
 
-### Phase 2: Implementation (COMPLETE)
-4. ✅ **Python.NET integration**: Added pythonnet NuGet (v3.0.3)
-5. ✅ **Managed wrapper**: Implemented `RTDEControlPython` and `RTDEReceivePython`
-6. ✅ **Python runtime**: Created `PythonEngineManager` for lifecycle management
-7. ✅ **IDisposable pattern**: Proper resource cleanup, GIL handling
-8. ✅ **Error mapping**: Python exceptions → C# `RTDEException`/`RTDEConnectionException`
+### Phase 2: Native Build Infrastructure ✅ COMPLETE
+4. ✅ **C API Facade**: Designed and implemented in `native/facade/` (ur_rtde_c_api.h/cpp)
+5. ✅ **Build scripts**: `build-native.bat`, CMakeLists.txt, vcpkg integration
+6. ✅ **Source preparation**: Cloned ur_rtde v1.6.0 to `build-native/ur_rtde/`
+7. ✅ **CMake configuration**: Release build, static linking, vcpkg toolchain
 
-### Phase 3: Validation (COMPLETE)
-9. ✅ **Console demo**: Complete test harness in `samples/Console/`
-10. ✅ **URSim testing**: Validated against URSim e-Series 5.23.0
-    - ✅ Connection: localhost:30004
-    - ✅ Streaming: 66,409 Hz for 3 seconds (199,228 samples, zero drops)
-    - ✅ MoveJ: Moved J0 by 5° successfully
-    - ✅ StopJ: Executed successfully
-11. ✅ **Performance**: 13,000% faster than 500 Hz requirement
+### Phase 3: Managed Wrapper ✅ COMPLETE
+8. ✅ **P/Invoke bindings**: `NativeMethods.cs` with [DllImport] declarations
+9. ✅ **C# wrapper classes**: `RTDEControl`, `RTDEReceive` with IDisposable
+10. ✅ **Error handling**: C error codes → RTDEException/RTDEConnectionException
+11. ✅ **NuGet structure**: Multi-TFM (net48/net8.0), runtimes/win-x64/native/ configured
 
-### Phase 4: Documentation (COMPLETE)
-12. ✅ **README.md**: Comprehensive overview with benchmarks
-13. ✅ **AGENTS.md**: Updated with completion status
-14. ✅ **Quickstart**: Installation and usage examples
-15. ✅ **Troubleshooting**: Common issues and solutions
-16. ✅ **Version matrix**: Dependencies (ur_rtde v1.6.2, Python 3.8+)
-17. ✅ **Implementation paths**: Python.NET vs Native C++ comparison
+### Phase 4: Build Environment 🔄 IN PROGRESS
+12. ✅ **VS 2022 Community**: Installed
+13. ✅ **vcpkg**: Installed at C:\vcpkg
+14. 🔄 **C++ Workload**: Installing complete components (needs vcvarsall.bat)
+15. ⏳ **Boost libraries**: Waiting for VS installation to complete
+16. ⏳ **ur_rtde build**: Blocked on Boost
+17. ⏳ **C API facade build**: Blocked on ur_rtde
 
-### Phase 5: Future (Optional)
-18. ⏳ **Grasshopper demo**: GH components (next phase)
-19. ⏳ **Native C++ wrapper**: Optional production build (see IMPLEMENTATION_PATHS.md)
-20. ⏳ **NuGet publish**: Publish to NuGet.org
-21. ⏳ **CI/CD**: Automated tests and builds
+### Phase 5: Testing & Packaging ⏳ PENDING
+18. ⏳ **Console demo**: Ready to test with URSim @ 172.18.0.2
+19. ⏳ **URSim validation**: MoveJ, StopJ, streaming tests
+20. ⏳ **NuGet package**: Create .nupkg with all native DLLs
+21. ⏳ **Documentation**: Final updates with performance numbers
+
+### Phase 6: Future Enhancements
+22. 📋 **Grasshopper components**: GH integration (next phase)
+23. 📋 **macOS native build**: arm64 binaries via CI
+24. 📋 **NuGet publish**: Publish to NuGet.org
+25. 📋 **CI/CD**: GitHub Actions workflows
 
 ## Risk register (and default mitigations)
 

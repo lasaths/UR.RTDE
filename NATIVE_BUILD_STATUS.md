@@ -169,8 +169,11 @@ If you need to continue this later:
 
 ---
 
-**Current ETA**: Complete C++ workload (~10 min), then Boost (~20 min), then build (~10 min)  
-**Total build**: ~40 minutes from C++ workload completion  
-**Total time**: Currently installing complete VS C++ components
+**Current ETA**: VS C++ install completes, then 45 min automated build  
+**Total time**: Currently installing Visual Studio C++ components
 
-**Status**: Re-running VS Installer to add vcvarsall.bat (needed by vcpkg)
+**Status**: ⏳ Waiting for Visual Studio C++ workload installation to complete  
+**Blocker**: vcpkg requires vcvarsall.bat (being installed now)  
+**Next**: After VS completes → Boost (~20m) → ur_rtde (~7m) → NuGet (~10m)
+
+**To Resume**: See [RESUME.md](../RESUME.md) for complete instructions
