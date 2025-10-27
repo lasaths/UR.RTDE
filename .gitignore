@@ -1,0 +1,50 @@
+# Build outputs
+bin/
+obj/
+out/
+build/
+dist/
+*.dll
+*.so
+*.dylib
+*.exe
+*.user
+*.suo
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Visual Studio
+.vs/
+*.csproj.user
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Native builds
+native/build/
+native/lib/
+native/bin/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+*.tmp
+*.bak
+*.swp
+*~
