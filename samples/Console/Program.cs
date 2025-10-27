@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using UR.RTDE.PythonBridge;
+using UR.RTDE;
 
 namespace ConsoleDemo
 {
@@ -9,7 +9,7 @@ namespace ConsoleDemo
         static void Main(string[] args)
         {
             Console.WriteLine("=================================================================");
-            Console.WriteLine("UR.RTDE Python.NET Bridge Demo");
+            Console.WriteLine("UR.RTDE Native C++ Wrapper Demo");
             Console.WriteLine("=================================================================\n");
 
             string robotIp = args.Length > 0 ? args[0] : "localhost";
@@ -17,21 +17,16 @@ namespace ConsoleDemo
 
             try
             {
-                // Initialize Python
-                Console.WriteLine("[1/5] Initializing Python runtime...");
-                PythonEngineManager.Initialize();
-                Console.WriteLine("✅ Python initialized\n");
-
-                // Connect
-                Console.WriteLine("[2/5] Connecting to robot...");
-                using (var control = new RTDEControlPython(robotIp))
-                using (var receive = new RTDEReceivePython(robotIp))
+                // Connect to robot (native P/Invoke - no Python needed!)
+                Console.WriteLine("[1/4] Connecting to robot...");
+                using (var control = new RTDEControl(robotIp))
+                using (var receive = new RTDEReceive(robotIp))
                 {
                     Console.WriteLine($"✅ Control: {control.IsConnected}");
                     Console.WriteLine($"✅ Receive: {receive.IsConnected}\n");
 
-                    // Read joints
-                    Console.WriteLine("[3/5] Reading joint positions...");
+                    // Read joint positions
+                    Console.WriteLine("[2/4] Reading joint positions...");
                     var q = receive.GetActualQ();
                     Console.WriteLine("Joint positions:");
                     for (int i = 0; i < 6; i++)
@@ -40,8 +35,8 @@ namespace ConsoleDemo
                     Console.WriteLine($"\nRobot Mode: {receive.GetRobotMode()}");
                     Console.WriteLine($"Safety Mode: {receive.GetSafetyMode()}\n");
 
-                    // Stream
-                    Console.WriteLine("[4/5] Streaming for 3 seconds...");
+                    // Stream for 3 seconds
+                    Console.WriteLine("[3/4] Streaming for 3 seconds...");
                     int count = 0;
                     var start = DateTime.UtcNow;
                     while ((DateTime.UtcNow - start).TotalSeconds < 3)
@@ -52,8 +47,8 @@ namespace ConsoleDemo
                     var elapsed = (DateTime.UtcNow - start).TotalSeconds;
                     Console.WriteLine($"✅ {count} samples in {elapsed:F2}s = {count/elapsed:F0} Hz\n");
 
-                    // Move
-                    Console.WriteLine("[5/5] Testing MoveJ and Stop...");
+                    // Test movement
+                    Console.WriteLine("[4/4] Testing MoveJ and Stop...");
                     q = receive.GetActualQ();
                     var targetQ = (double[])q.Clone();
                     targetQ[0] += 0.087; // Move J0 by 5 degrees
@@ -70,7 +65,7 @@ namespace ConsoleDemo
 
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("=================================================================");
-                    Console.WriteLine("✅ ALL TESTS PASSED - Python.NET bridge works!");
+                    Console.WriteLine("✅ ALL TESTS PASSED - Native C++ wrapper works!");
                     Console.WriteLine("=================================================================");
                     Console.ResetColor();
                 }
