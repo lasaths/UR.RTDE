@@ -169,6 +169,8 @@ If you need to continue this later:
 
 ---
 
-**Current ETA**: Boost install complete in ~15 minutes  
-**Total build**: ~40 minutes from Boost completion  
-**Total time**: ~2 hours including setup
+**Current ETA**: Complete C++ workload (~10 min), then Boost (~20 min), then build (~10 min)  
+**Total build**: ~40 minutes from C++ workload completion  
+**Total time**: Currently installing complete VS C++ components
+
+**Status**: Re-running VS Installer to add vcvarsall.bat (needed by vcpkg)
