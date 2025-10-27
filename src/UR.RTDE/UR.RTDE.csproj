@@ -42,4 +42,8 @@
     <!-- .NET 8 doesn't need extra dependencies for P/Invoke -->
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="pythonnet" Version="3.0.3" />
+  </ItemGroup>
+
 </Project>
