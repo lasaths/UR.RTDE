@@ -20,7 +20,7 @@
 # Clone ur_rtde
 git clone --recursive https://gitlab.com/sdurobotics/ur_rtde.git
 cd ur_rtde
-git checkout v1.5.8
+git checkout v1.6.2
 
 # Build ur_rtde
 mkdir build && cd build

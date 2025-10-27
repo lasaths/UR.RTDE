@@ -1,6 +1,6 @@
 # UR.RTDE — Universal Robots RTDE Wrapper
 
-A **C# wrapper** for the [SDU Robotics `ur_rtde`](https://gitlab.com/sdurobotics/ur_rtde) C++ library, designed for **Rhino 7** (.NET Framework 4.8) and **Rhino 8** (.NET 8) on **Windows x64** and **macOS arm64**.
+A **C# wrapper** for the [SDU Robotics `ur_rtde`](https://gitlab.com/sdurobotics/ur_rtde) C++ library (v1.6.2), designed for **Rhino 7** (.NET Framework 4.8) and **Rhino 8** (.NET 8) on **Windows x64** and **macOS arm64**.
 
 ## Features
 
