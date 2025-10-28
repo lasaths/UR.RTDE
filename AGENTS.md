@@ -1,9 +1,9 @@
 # AGENTS.md — UR.RTDE Wrapper (Rhino 7 & 8, NuGet)
 
-**Status**: ✅ **PRODUCTION READY** (61 Methods Implemented & Tested)  
+**Status**: ✅ **PRODUCTION READY** (70+ Methods Implemented & Tested)  
 **Date**: 2025-10-28  
 **Version**: 1.1.0.0 (URSim Validated)  
-**Validation**: URSim e-Series 5.23.0 @ 172.18.0.2 ✅ ALL TESTS PASSED (7/7)
+**Validation**: URSim e-Series 5.23.0 @ localhost ✅ Core suite passing (Robotiq/FT tests gated)
 
 ---
 
@@ -14,7 +14,7 @@ Expert **software engineering agent** is delivering a **native C# wrapper** arou
 * **Rhino 7** (.NET Framework **4.8**, Windows x64)
 * **Rhino 8** (.NET **8**) on **Windows x64** and **macOS (arm64)**
 
-Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** implementation. Zero Python dependency, pure native performance, single NuGet install. **All major features now implemented** including advanced control (ForceMode, ServoL, Jog, TeachMode).
+Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** implementation. Zero Python dependency, pure native performance, single NuGet install. **All major features now implemented** including advanced control (ForceMode, ServoL, Jog, TeachMode) and **Robotiq gripper support** (URScript client + fast RTDE-register bridge).
 
 ## Objectives (what to build)
 
@@ -24,7 +24,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
    * **Receive** (16 methods): ActualQ, TargetQ, ActualTcpPose, TargetTcpPose, TcpForce, JointTemperatures, MotorCurrents, RobotMode, SafetyMode, RuntimeState, SafetyStatus (IsProtectiveStopped, IsEmergencyStopped), Digital I/O.
    * **IO** (6 methods): Digital I/O (standard/tool), analog output control (voltage/current), speed slider.
    * **Lifecycle**: Connect/Disconnect, reconnect, timeouts, connection status.
-3. ✅ **Packaging** as a single **NuGet** with RID-specific native assets to "just work" in Rhino 7/8. - **COMPLETE (UR.RTDE.1.0.0.nupkg)**
+3. ✅ **Packaging** as a single **NuGet** with RID-specific native assets to "just work" in Rhino 7/8. - **COMPLETE (UR.RTDE.1.1.0)**
 4. ✅ **Samples & docs** that prove end-to-end: connect → stream joints → MoveJ → Stop → Kinematics → I/O control. - **COMPLETE & VALIDATED**
 
 ## Constraints & scope
@@ -87,9 +87,9 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 | **No manual DLL copy** | ✅ COMPLETE | NuGet runtimes/ structure working |
 | **Clear documentation** | ✅ COMPLETE | README, TEST_REPORT, FEATURE_COVERAGE |
 | **No drops** | ✅ TESTED | 986 samples, 100% reliability |
-| **Extended features** | ✅ COMPLETE | **70+ methods**: Kinematics, I/O, Force, Safety, Jog, TeachMode |
+| **Extended features** | ✅ COMPLETE | **70+ methods**: Kinematics, I/O, Force, Safety, Jog, TeachMode, Robotiq |
 
-**Overall**: ✅ **PRODUCTION READY - 70+ METHODS - 22/22 TESTS PASSED (100%)**
+**Overall**: ✅ **PRODUCTION READY - 70+ METHODS - Core suite passing (URSim)**
 
 ---
 
@@ -331,10 +331,10 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 38. ⏳ **Rhino 8 test**: Awaiting Rhino environment
 
 ### Phase 7: Future Enhancements 📋 PLANNED
-39. 📋 **NuGet publish**: Publish v1.1.0.0 to NuGet.org
+39. ✅ **NuGet publish**: Published v1.1.0 to NuGet.org
 40. 📋 **Grasshopper components**: GH integration for Rhino 7/8
 41. 📋 **macOS native build**: arm64 binaries via CI
-42. 📋 **CI/CD**: GitHub Actions workflows
+42. ✅ **CI/CD**: GitHub Release workflow (tag → release with nupkg)
 43. 📋 **Additional features**: Dashboard client, Script client, remaining ur_rtde APIs
 44. 📋 **Long-duration stress test**: 5+ min streaming @ 500 Hz
 45. 📋 **Performance profiling**: Memory, CPU, latency analysis
@@ -504,3 +504,5 @@ See **[UPDATING_URRTDE.md](UPDATING_URRTDE.md)** for complete step-by-step instr
 - C# wrapper: ~6 seconds
 - NuGet package: ~2 seconds
 - **Total**: ~70 minutes
+
+
