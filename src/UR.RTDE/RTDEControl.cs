@@ -179,12 +179,12 @@ namespace UR.RTDE
         }
 
         /// <summary>
-        /// Reset watchdog timer
+        /// Kick/reset the watchdog timer
         /// </summary>
         public void TriggerWatchdog()
         {
             ThrowIfDisposed();
-            CheckStatus(NativeMethods.ur_rtde_control_trigger_watchdog(_handle));
+            CheckStatus(NativeMethods.ur_rtde_control_kick_watchdog(_handle));
         }
 
         // ====================================================================
@@ -201,7 +201,7 @@ namespace UR.RTDE
             ThrowIfDisposed();
             ValidateArray(pose, 6, nameof(pose));
             var q = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_control_get_inverse_kinematics(_handle, pose, q));
+            CheckStatus(NativeMethods.ur_rtde_control_get_inverse_kinematics(_handle, pose, (UIntPtr)6, q, (UIntPtr)6));
             return q;
         }
 
@@ -215,7 +215,7 @@ namespace UR.RTDE
             ThrowIfDisposed();
             ValidateArray(q, 6, nameof(q));
             var pose = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_control_get_forward_kinematics(_handle, q, pose));
+            CheckStatus(NativeMethods.ur_rtde_control_get_forward_kinematics(_handle, q, (UIntPtr)6, pose, (UIntPtr)6));
             return pose;
         }
 
@@ -228,7 +228,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             ValidateArray(pose, 6, nameof(pose));
-            return NativeMethods.ur_rtde_control_get_inverse_kinematics_has_solution(_handle, pose);
+            return NativeMethods.ur_rtde_control_get_inverse_kinematics_has_solution(_handle, pose, (UIntPtr)6);
         }
 
         // ====================================================================
@@ -305,6 +305,134 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             return NativeMethods.ur_rtde_control_get_robot_status(_handle);
+        }
+
+        /// <summary>
+        /// Enter force mode for compliant control
+        /// </summary>
+        /// <param name="taskFrame">Task frame [x, y, z, rx, ry, rz]</param>
+        /// <param name="selectionVector">Compliant axes [Fx, Fy, Fz, Mx, My, Mz] (0=position control, 1=force control)</param>
+        /// <param name="wrench">Target wrench [Fx, Fy, Fz, Mx, My, Mz] in task frame</param>
+        /// <param name="type">Force mode type (1=no transform, 2=base frame, 3=tool frame)</param>
+        /// <param name="limits">Max deviation [x, y, z, rx, ry, rz] from start pose</param>
+        public void ForceMode(double[] taskFrame, int[] selectionVector, double[] wrench, int type, double[] limits)
+        {
+            ThrowIfDisposed();
+            ValidateArray(taskFrame, 6, nameof(taskFrame));
+            if (selectionVector == null || selectionVector.Length != 6)
+                throw new ArgumentException("Selection vector must have 6 elements", nameof(selectionVector));
+            ValidateArray(wrench, 6, nameof(wrench));
+            ValidateArray(limits, 6, nameof(limits));
+            
+            CheckStatus(NativeMethods.ur_rtde_control_force_mode(
+                _handle,
+                taskFrame, (UIntPtr)taskFrame.Length,
+                selectionVector, (UIntPtr)selectionVector.Length,
+                wrench, (UIntPtr)wrench.Length,
+                type,
+                limits, (UIntPtr)limits.Length));
+        }
+
+        /// <summary>
+        /// Stop force mode
+        /// </summary>
+        public void ForceModeStop()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_force_mode_stop(_handle));
+        }
+
+        /// <summary>
+        /// Zero the force/torque sensor
+        /// </summary>
+        public void ZeroFtSensor()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_zero_ft_sensor(_handle));
+        }
+
+        /// <summary>
+        /// Start jogging the robot
+        /// </summary>
+        /// <param name="speeds">Joint or TCP speeds [6]</param>
+        /// <param name="feature">Feature (0=base, 1=tool, 2=base rotated, custom features 128-255)</param>
+        public void JogStart(double[] speeds, int feature = 0)
+        {
+            ThrowIfDisposed();
+            ValidateArray(speeds, 6, nameof(speeds));
+            CheckStatus(NativeMethods.ur_rtde_control_jog_start(_handle, speeds, (UIntPtr)speeds.Length, feature));
+        }
+
+        /// <summary>
+        /// Stop jogging
+        /// </summary>
+        public void JogStop()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_jog_stop(_handle));
+        }
+
+        /// <summary>
+        /// Enter teach mode (freedrive)
+        /// </summary>
+        public void TeachMode()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_teach_mode(_handle));
+        }
+
+        /// <summary>
+        /// Exit teach mode
+        /// </summary>
+        public void EndTeachMode()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_end_teach_mode(_handle));
+        }
+
+        /// <summary>
+        /// Servo to Cartesian pose (tool space)
+        /// </summary>
+        /// <param name="pose">Target pose [x, y, z, rx, ry, rz]</param>
+        /// <param name="speed">NOT used</param>
+        /// <param name="acceleration">NOT used</param>
+        /// <param name="time">Command duration [s]</param>
+        /// <param name="lookaheadTime">Smoothing [0.03-0.2 s]</param>
+        /// <param name="gain">Proportional gain [100-2000]</param>
+        public void ServoL(double[] pose, double speed = 0, double acceleration = 0, double time = 0.002,
+            double lookaheadTime = 0.1, double gain = 300)
+        {
+            ThrowIfDisposed();
+            ValidateArray(pose, 6, nameof(pose));
+            CheckStatus(NativeMethods.ur_rtde_control_servo_l(
+                _handle, pose, (UIntPtr)pose.Length, speed, acceleration, time, lookaheadTime, gain));
+        }
+
+        /// <summary>
+        /// Trigger a protective stop (for testing)
+        /// </summary>
+        public void TriggerProtectiveStop()
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_trigger_protective_stop(_handle));
+        }
+
+        /// <summary>
+        /// Set force mode damping parameter
+        /// </summary>
+        public void ForceModeSetDamping(double damping)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_force_mode_set_damping(_handle, damping));
+        }
+
+        /// <summary>
+        /// Set force mode gain scaling
+        /// </summary>
+        public void ForceModeSetGainScaling(double scaling)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_force_mode_set_gain_scaling(_handle, scaling));
         }
 
         // ====================================================================

@@ -782,6 +782,220 @@ double ur_rtde_receive_get_standard_analog_output(
 }
 
 // ============================================================================
+// RTDEControl - Force Mode & Advanced Control
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_control_force_mode(
+    ur_rtde_control_t* handle,
+    const double* task_frame,
+    size_t task_frame_size,
+    const int* selection_vector,
+    size_t selection_vector_size,
+    const double* wrench,
+    size_t wrench_size,
+    int type,
+    const double* limits,
+    size_t limits_size)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    if (task_frame_size != 6 || selection_vector_size != 6 || wrench_size != 6 || limits_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    try {
+        std::vector<double> task_frame_vec(task_frame, task_frame + task_frame_size);
+        std::vector<int> selection_vec(selection_vector, selection_vector + selection_vector_size);
+        std::vector<double> wrench_vec(wrench, wrench + wrench_size);
+        std::vector<double> limits_vec(limits, limits + limits_size);
+        
+        bool result = handle->control->forceMode(task_frame_vec, selection_vec, wrench_vec, type, limits_vec);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_force_mode_stop(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->forceModeStop();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_zero_ft_sensor(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->zeroFtSensor();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_jog_start(
+    ur_rtde_control_t* handle,
+    const double* speeds,
+    size_t speeds_size,
+    int feature)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    if (speeds_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    try {
+        std::vector<double> speeds_vec(speeds, speeds + speeds_size);
+        bool result = handle->control->jogStart(speeds_vec, feature);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_jog_stop(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->jogStop();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_teach_mode(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->teachMode();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_end_teach_mode(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->endTeachMode();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_servo_l(
+    ur_rtde_control_t* handle,
+    const double* pose,
+    size_t pose_size,
+    double speed,
+    double acceleration,
+    double time,
+    double lookahead_time,
+    double gain)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    if (pose_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    try {
+        std::vector<double> pose_vec(pose, pose + pose_size);
+        bool result = handle->control->servoL(pose_vec, speed, acceleration, time, lookahead_time, gain);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_trigger_protective_stop(ur_rtde_control_t* handle)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->triggerProtectiveStop();
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_force_mode_set_damping(
+    ur_rtde_control_t* handle,
+    double damping)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->forceModeSetDamping(damping);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_force_mode_set_gain_scaling(
+    ur_rtde_control_t* handle,
+    double scaling)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->control->forceModeSetGainScaling(scaling);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+// ============================================================================
 // RTDEIO Interface
 // ============================================================================
 

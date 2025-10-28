@@ -49,3 +49,18 @@ Thumbs.db
 *.swp
 *~
 build-native/
+
+# Local artifacts
+nupkgs/
+artifacts/
+test-results*.txt
+
+# Tooling
+.vscode/
+
+# Native compiler outputs
+*.lib
+*.exp
+*.obj
+*.pdb
+native/facade/build/

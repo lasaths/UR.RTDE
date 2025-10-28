@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>UR.RTDE.Tests</RootNamespace>
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
+    <RootNamespace>URSimTests</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

@@ -128,7 +128,7 @@ namespace UR.RTDE.Native
             [In] double[] cog);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Status ur_rtde_control_trigger_watchdog(IntPtr handle);
+        internal static extern Status ur_rtde_control_kick_watchdog(IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern IntPtr ur_rtde_control_get_last_error(IntPtr handle);
@@ -202,19 +202,24 @@ namespace UR.RTDE.Native
         internal static extern Status ur_rtde_control_get_inverse_kinematics(
             IntPtr handle,
             [In] double[] x,
-            [Out] double[] q_out);
+            UIntPtr x_size,
+            [Out] double[] q_out,
+            UIntPtr q_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_control_get_forward_kinematics(
             IntPtr handle,
             [In] double[] q,
-            [Out] double[] x_out);
+            UIntPtr q_size,
+            [Out] double[] x_out,
+            UIntPtr x_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
         internal static extern bool ur_rtde_control_get_inverse_kinematics_has_solution(
             IntPtr handle,
-            [In] double[] x);
+            [In] double[] x,
+            UIntPtr x_size);
 
         // ====================================================================
         // RTDEControl - Advanced Movement
@@ -313,6 +318,69 @@ namespace UR.RTDE.Native
         internal static extern double ur_rtde_receive_get_standard_analog_output(
             IntPtr handle,
             byte output_id);
+
+        // ====================================================================
+        // RTDEControl - Force Mode & Advanced Control
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_force_mode(
+            IntPtr handle,
+            [In] double[] task_frame,
+            UIntPtr task_frame_size,
+            [In] int[] selection_vector,
+            UIntPtr selection_vector_size,
+            [In] double[] wrench,
+            UIntPtr wrench_size,
+            int type,
+            [In] double[] limits,
+            UIntPtr limits_size);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_force_mode_stop(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_zero_ft_sensor(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_jog_start(
+            IntPtr handle,
+            [In] double[] speeds,
+            UIntPtr speeds_size,
+            int feature);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_jog_stop(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_teach_mode(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_end_teach_mode(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_servo_l(
+            IntPtr handle,
+            [In] double[] pose,
+            UIntPtr pose_size,
+            double speed,
+            double acceleration,
+            double time,
+            double lookahead_time,
+            double gain);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_trigger_protective_stop(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_force_mode_set_damping(
+            IntPtr handle,
+            double damping);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_force_mode_set_gain_scaling(
+            IntPtr handle,
+            double scaling);
 
         // ====================================================================
         // RTDEIO Interface
