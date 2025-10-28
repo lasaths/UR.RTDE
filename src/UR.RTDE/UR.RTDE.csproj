@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/lasaths/UR.RTDE</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Initial release with Python.NET bridge implementation. Validated with URSim e-Series 5.23.0.</PackageReleaseNotes>
+    <PackageReleaseNotes>Native C ABI + P/Invoke wrapper around ur_rtde v1.6.0. Production-ready for Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8). Includes win-x64 native assets (rtde.dll, ur_rtde_c_api.dll). Validated on URSim e-Series 5.23.0 with 22/22 tests.</PackageReleaseNotes>
     
     <!-- Enable native library packaging -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
