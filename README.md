@@ -4,6 +4,7 @@
 [![.NET](https://img.shields.io/badge/.NET-4.8%20%7C%208.0-512BD4)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-lightgrey)](https://github.com/lasaths/UR.RTDE)
 [![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
+[![NuGet](https://img.shields.io/nuget/v/UR.RTDE.svg)](https://www.nuget.org/packages/UR.RTDE)
 
 **Professional C# wrapper** for Universal Robots RTDE interface using **native C++ P/Invoke**. Zero external dependencies - everything included in the NuGet package.
 
@@ -202,7 +203,8 @@ NuGet publish (manual):
 
 ```powershell
 dotnet pack src/UR.RTDE -c Release -o nupkgs
-dotnet nuget push nupkgs/UR.RTDE.1.1.0.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+# NuGet normalizes trailing .0 segments, so the file is '1.1.0'
+dotnet nuget push nupkgs/UR.RTDE.1.1.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
 ```
 
 ---

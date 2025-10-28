@@ -38,6 +38,10 @@ jobs:
             $0 ~ /^## \[/ && flag==1 {flag=0}
             flag==1 {print}
           ' CHANGELOG.md > RELEASE_NOTES.md
+          # Fallback to template if no notes were found
+          if [ ! -s RELEASE_NOTES.md ]; then
+            cp .github/RELEASE_TEMPLATE.md RELEASE_NOTES.md
+          fi
           echo "Generated RELEASE_NOTES.md:" && cat RELEASE_NOTES.md
 
       - name: Build package
@@ -49,9 +53,17 @@ jobs:
         id: nupkg
         run: |
           ver='${{ steps.ver.outputs.version }}'
-          file=$(ls nupkgs/UR.RTDE.${ver}.nupkg)
+          # Normalize NuGet version by stripping trailing .0 segments (NuGet version normalization)
+          ver_norm=$(echo "$ver" | sed -E 's/(\.0)+$//')
+          if [ -f "nupkgs/UR.RTDE.${ver}.nupkg" ]; then
+            file="nupkgs/UR.RTDE.${ver}.nupkg"
+          elif [ -f "nupkgs/UR.RTDE.${ver_norm}.nupkg" ]; then
+            file="nupkgs/UR.RTDE.${ver_norm}.nupkg"
+          else
+            file=$(ls -t nupkgs/UR.RTDE.*.nupkg | head -n1)
+          fi
           echo "path=$file" >> $GITHUB_OUTPUT
-          echo "Found: $file"
+          echo "Found: $file (version=$ver, normalized=$ver_norm)"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -64,4 +76,3 @@ jobs:
             ${{ steps.nupkg.outputs.path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
