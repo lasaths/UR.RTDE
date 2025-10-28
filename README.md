@@ -9,8 +9,6 @@
 
 Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++ library (v1.6.0) by SDU Robotics.
 
-> **✅ Status**: **Production Ready!** Successfully tested with URSim e-Series 5.23.0. **22/22 core tests passing (100% coverage)** across Control, Receive, and I/O interfaces. **All major features implemented** including ServoL, ForceMode, Jog, TeachMode, and advanced control. See [IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md) for full details.
-
 ## ⚠️ AI-Built & Liability Disclaimer
 
 - Portions of this repository (code, scripts, and documentation) were authored with AI assistance and curated by the project maintainer.
@@ -23,7 +21,7 @@ Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++
 
 ## 🎯 Features
 
-### Core Capabilities (v2.0.0)
+### Core Capabilities (v1.1.0.0)
 - ✅ **Native Performance** - Direct C++ via P/Invoke (500+ Hz streaming)
 - ✅ **Zero Dependencies** - No Python, all native DLLs included in NuGet  
 - ✅ **Rhino 7 & 8** - Works in both (.NET Framework 4.8 and .NET 8)
@@ -42,6 +40,41 @@ Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++
 - ✅ **Connection Management** - Robust connect/disconnect, reconnection, timeout handling
 
 **Total**: 70+ methods across RTDEControl, RTDEReceive, and RTDEIO interfaces
+
+---
+
+## 🤝 Robotiq Gripper Support (URCap)
+
+Two options are available when the Robotiq URCap is installed on the controller:
+
+- Option 2 (URScript client, simple):
+  - Use `RobotiqGripper` over TCP port 30002 to call URCap functions (`rq_activate`, `rq_open`, `rq_close`, `rq_move`, `rq_set_speed`, `rq_set_force`).
+  - Example:
+    ```csharp
+    var g = new RobotiqGripper("192.168.1.100", 30002);
+    await g.ConnectAsync();
+    await g.ActivateAsync();
+    await g.SetSpeedAsync(128);
+    await g.SetForceAsync(128);
+    await g.CloseAsync();
+    ```
+
+- Option 3 (RTDE fast path, preferred):
+  - Use `RobotiqGripperRtde` for low-latency commands via RTDE input/output registers.
+  - A one-time URScript bridge is uploaded (requires URCap); then commands are issued by writing registers.
+  - Example:
+    ```csharp
+    using var ctrl = new RTDEControl("192.168.1.100");
+    using var recv = new RTDEReceive("192.168.1.100");
+    var g = new RobotiqGripperRtde(ctrl, recv);
+    await g.InstallBridgeAsync();
+    await g.ActivateAsync();
+    await g.CloseAsync();
+    ```
+
+Notes:
+- The `rq_*` functions come from the Robotiq URCap. Without the URCap, these calls are undefined and tests should remain disabled.
+- Default register mapping follows SDU examples: `input_int[0]`=command, `input_int[1]`=value, `output_int[0]`=status, `output_int[1]`=position.
 
 ---
 
@@ -140,6 +173,37 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructi
 - [Agent Instructions](AGENTS.md) - For AI agents/developers
 - [Feature Coverage](FEATURE_COVERAGE.md) - Complete API coverage analysis
 - [Test Plan](TEST_PLAN.md) - Comprehensive test strategy
+
+### Test Flags
+- `ROBOT_IP`: overrides the default robot/URSim IP (default: `localhost`).
+- `ENABLE_ROBOTIQ_TESTS`: set to `true` to run Robotiq tests (requires URCap).
+- `ENABLE_FT_TESTS`: set to `true` to run FT zeroing test (may be unsupported in URSim).
+
+---
+
+## 🏷️ Release
+
+We use SemVer. This version is 1.1.0.0.
+
+Steps to publish a GitHub Release (CI will attach the nupkg and use CHANGELOG as notes):
+
+```powershell
+# Ensure your working tree is clean and up to date
+git pull origin main
+
+# Tag the release (match csproj version)
+git tag v1.1.0.0 -m "UR.RTDE 1.1.0.0"
+git push origin v1.1.0.0
+
+# GitHub Actions will create the Release and attach the nupkg
+```
+
+NuGet publish (manual):
+
+```powershell
+dotnet pack src/UR.RTDE -c Release -o nupkgs
+dotnet nuget push nupkgs/UR.RTDE.1.1.0.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+```
 
 ---
 

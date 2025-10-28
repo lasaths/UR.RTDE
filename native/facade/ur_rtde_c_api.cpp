@@ -586,6 +586,70 @@ uint32_t ur_rtde_control_get_robot_status(ur_rtde_control_t* handle)
 }
 
 // ============================================================================
+// RTDEControl - RTDE Register & Custom Script
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_control_set_input_int_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    int32_t value)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        bool result = handle->control->setInputIntRegister(reg, value);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_set_input_double_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    double value)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        bool result = handle->control->setInputDoubleRegister(reg, value);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_set_input_bit_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    bool value)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        bool result = handle->control->setInputBitRegister(reg, value);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_control_send_custom_script(
+    ur_rtde_control_t* handle,
+    const char* script)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    if (!script) return UR_RTDE_ERROR_INVALID_PARAM;
+    try {
+        bool result = handle->control->sendCustomScript(std::string(script));
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+// ============================================================================
 // RTDEReceive - Extended Data
 // ============================================================================
 
@@ -740,6 +804,46 @@ uint32_t ur_rtde_receive_get_safety_status_bits(ur_rtde_receive_t* handle)
         return handle->receive->getSafetyStatusBits();
     } catch (...) {
         return 0;
+    }
+}
+
+// ============================================================================
+// RTDEReceive - RTDE Output Registers
+// ============================================================================
+
+int32_t ur_rtde_receive_get_output_int_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg)
+{
+    if (!handle) return 0;
+    try {
+        return handle->receive->getOutputIntRegister(reg);
+    } catch (...) {
+        return 0;
+    }
+}
+
+double ur_rtde_receive_get_output_double_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg)
+{
+    if (!handle) return 0.0;
+    try {
+        return handle->receive->getOutputDoubleRegister(reg);
+    } catch (...) {
+        return 0.0;
+    }
+}
+
+bool ur_rtde_receive_get_output_bit_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg)
+{
+    if (!handle) return false;
+    try {
+        return handle->receive->getOutputBitRegister(reg);
+    } catch (...) {
+        return false;
     }
 }
 

@@ -779,8 +779,8 @@ dotnet run --configuration Release
 
 ```powershell
 # Reset to previous tag
-git checkout v2.0.0
-git checkout -b rollback-to-v2.0.0
+git checkout v1.1.0.0
+git checkout -b rollback-to-v1.1.0.0
 
 # Verify tests
 cd samples\Console
@@ -788,7 +788,7 @@ dotnet run --configuration Release
 
 # If good, merge
 git checkout main
-git reset --hard v2.0.0
+git reset --hard v1.1.0.0
 git push --force  # Use with caution!
 ```
 

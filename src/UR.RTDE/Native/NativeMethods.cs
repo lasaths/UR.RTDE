@@ -306,6 +306,26 @@ namespace UR.RTDE.Native
         internal static extern uint ur_rtde_receive_get_safety_status_bits(IntPtr handle);
 
         // ====================================================================
+        // RTDEReceive - RTDE Output Registers
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_receive_get_output_int_register(
+            IntPtr handle,
+            ushort reg);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern double ur_rtde_receive_get_output_double_register(
+            IntPtr handle,
+            ushort reg);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_receive_get_output_bit_register(
+            IntPtr handle,
+            ushort reg);
+
+        // ====================================================================
         // RTDEReceive - Analog I/O
         // ====================================================================
 
@@ -381,6 +401,33 @@ namespace UR.RTDE.Native
         internal static extern Status ur_rtde_control_force_mode_set_gain_scaling(
             IntPtr handle,
             double scaling);
+
+        // ====================================================================
+        // RTDEControl - RTDE Registers & Custom Script
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_set_input_int_register(
+            IntPtr handle,
+            ushort reg,
+            int value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_set_input_double_register(
+            IntPtr handle,
+            ushort reg,
+            double value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_set_input_bit_register(
+            IntPtr handle,
+            ushort reg,
+            [MarshalAs(UnmanagedType.I1)] bool value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern Status ur_rtde_control_send_custom_script(
+            IntPtr handle,
+            string script);
 
         // ====================================================================
         // RTDEIO Interface

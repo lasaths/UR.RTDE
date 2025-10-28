@@ -8,12 +8,18 @@ namespace URSimTests
 {
     class Program
     {
-        private const string ROBOT_IP = "localhost"; // URSim e-Series 5.23.0 @ localhost
+        private static string ROBOT_IP = "localhost"; // default; override via args or env ROBOT_IP
         private static int _testsPassed = 0;
         private static int _testsFailed = 0;
 
         static async Task<int> Main(string[] args)
         {
+            // Allow overriding robot IP via args[0] or env ROBOT_IP
+            if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
+                ROBOT_IP = args[0];
+            var envIp = Environment.GetEnvironmentVariable("ROBOT_IP");
+            if (!string.IsNullOrWhiteSpace(envIp)) ROBOT_IP = envIp;
+
             Console.WriteLine("=".PadRight(80, '='));
             Console.WriteLine("UR.RTDE - URSim Integration Tests");
             Console.WriteLine("Target: URSim e-Series 5.23.0 @ " + ROBOT_IP);

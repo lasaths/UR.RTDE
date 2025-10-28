@@ -187,3 +187,23 @@ brew install boost
    ```
 3. Test with URSim (UR robot simulator)
 4. Verify UR PolyScope version compatibility (see [version-matrix.md](version-matrix.md))
+
+## Robotiq URCap / Gripper Notes
+
+### `rq_*` not defined / script errors
+- Symptom: URScript functions like `rq_activate()` are undefined.
+- Cause: Robotiq URCap not installed/enabled on the controller/URSim.
+- Fix: Install the Robotiq URCap and enable it in PolyScope. Until then, keep `ENABLE_ROBOTIQ_TESTS` disabled.
+
+### RTDE-register gripper bridge not responding
+- Ensure the bridge script was uploaded (`RobotiqGripperRtde.InstallBridgeAsync`).
+- Confirm default register mapping is free: `input_int[0..1]`, `output_int[0..1]`.
+- Check controller is in Remote mode and running; no protective/emergency stop.
+
+### FT zeroing fails in URSim
+- `ZeroFtSensor()` can return `ErrorInvalidParam` in URSim because FT emulation may be incomplete.
+- Workaround: Skip the test by leaving `ENABLE_FT_TESTS` unset or set to `false`.
+
+### First connection sometimes fails but subsequent tests pass
+- Intermittent first-connect hiccups can occur on some hosts.
+- Mitigation: Add a short retry on first failure; subsequent reconnects are stable.

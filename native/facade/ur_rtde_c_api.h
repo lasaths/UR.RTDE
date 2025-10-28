@@ -517,6 +517,52 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_control_force_mode_set_gain_scaling(
     double scaling);
 
 // ============================================================================
+// RTDEControl - RTDE Register & Custom Script
+// ============================================================================
+
+/** Set RTDE input integer register */
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_int_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    int32_t value);
+
+/** Set RTDE input double register */
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_double_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    double value);
+
+/** Set RTDE input bit register */
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_bit_register(
+    ur_rtde_control_t* handle,
+    uint16_t reg,
+    bool value);
+
+/** Send custom URScript to the controller */
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_send_custom_script(
+    ur_rtde_control_t* handle,
+    const char* script);
+
+// ============================================================================
+// RTDEReceive - RTDE Output Registers
+// ============================================================================
+
+/** Get RTDE output integer register */
+UR_RTDE_API int32_t ur_rtde_receive_get_output_int_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg);
+
+/** Get RTDE output double register */
+UR_RTDE_API double ur_rtde_receive_get_output_double_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg);
+
+/** Get RTDE output bit register */
+UR_RTDE_API bool ur_rtde_receive_get_output_bit_register(
+    ur_rtde_receive_t* handle,
+    uint16_t reg);
+
+// ============================================================================
 // RTDEIO Interface
 // ============================================================================
 

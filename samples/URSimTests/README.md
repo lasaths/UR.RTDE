@@ -4,9 +4,9 @@ This project contains comprehensive integration tests for UR.RTDE against URSim.
 
 ## Prerequisites
 
-1. **URSim running** at `172.18.0.2`
-   - Use the provided Docker container
-   - Access VNC interface: http://172.18.0.2:6080/vnc.html
+1. **URSim running** (default IP `localhost` or your container IP)
+   - If using Docker, set `ROBOT_IP` to the container IP (e.g., `172.18.0.2`)
+   - Access VNC interface as per your URSim setup
 
 2. **Robot initialized**
    - Power on the virtual robot
@@ -27,8 +27,13 @@ This project contains comprehensive integration tests for UR.RTDE against URSim.
 ```
 
 ### Run Tests
-```bash
+```powershell
 cd samples/URSimTests
+# Set target IP (default: localhost)
+$env:ROBOT_IP = 'localhost'
+# Disable Robotiq & FT tests unless URCap/FT are available
+$env:ENABLE_ROBOTIQ_TESTS = 'false'
+Remove-Item Env:ENABLE_FT_TESTS -ErrorAction SilentlyContinue
 dotnet run -c Release
 ```
 
@@ -106,7 +111,11 @@ Total:  7
 ### Connection Refused
 - Ensure URSim is running: `docker ps`
 - Check URSim logs
-- Verify port 30004 is accessible: `Test-NetConnection 172.18.0.2 -Port 30004`
+- Verify port 30004 is accessible: `Test-NetConnection $env:ROBOT_IP -Port 30004`
+
+### Robotiq tests fail with unknown functions
+- Install and enable the Robotiq URCap on the controller/URSim.
+- Keep `$env:ENABLE_ROBOTIQ_TESTS='false'` if URCap is not installed.
 
 ### Robot Not Moving
 - Check URSim VNC interface

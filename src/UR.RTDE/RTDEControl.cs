@@ -436,6 +436,35 @@ namespace UR.RTDE
         }
 
         // ====================================================================
+        // RTDE Registers & Custom Script
+        // ====================================================================
+
+        public void SetInputIntRegister(ushort reg, int value)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_set_input_int_register(_handle, reg, value));
+        }
+
+        public void SetInputDoubleRegister(ushort reg, double value)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_set_input_double_register(_handle, reg, value));
+        }
+
+        public void SetInputBitRegister(ushort reg, bool value)
+        {
+            ThrowIfDisposed();
+            CheckStatus(NativeMethods.ur_rtde_control_set_input_bit_register(_handle, reg, value));
+        }
+
+        public void SendCustomScript(string script)
+        {
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(script)) throw new ArgumentNullException(nameof(script));
+            CheckStatus(NativeMethods.ur_rtde_control_send_custom_script(_handle, script));
+        }
+
+        // ====================================================================
         // Helper Methods
         // ====================================================================
 

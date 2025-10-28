@@ -157,3 +157,28 @@ catch (RTDEException ex)
 - [Troubleshooting](troubleshooting.md)
 - [Sample Projects](../samples/)
 - [Version Matrix](version-matrix.md)
+
+## Robotiq Gripper (URCap)
+
+If the Robotiq URCap is installed on the controller:
+
+- Quick (URScript client):
+```csharp
+var g = new UR.RTDE.RobotiqGripper("192.168.1.100", 30002);
+await g.ConnectAsync();
+await g.ActivateAsync();
+await g.CloseAsync();
+```
+
+- Fast (RTDE registers):
+```csharp
+using var ctrl = new UR.RTDE.RTDEControl("192.168.1.100");
+using var recv = new UR.RTDE.RTDEReceive("192.168.1.100");
+var g = new UR.RTDE.RobotiqGripperRtde(ctrl, recv);
+await g.InstallBridgeAsync();
+await g.CloseAsync();
+```
+
+Test flags:
+- `ENABLE_ROBOTIQ_TESTS=true` to run Robotiq tests
+- `ENABLE_FT_TESTS=true` to run FT zeroing test

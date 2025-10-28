@@ -2,7 +2,7 @@
 
 **Date**: 2025-10-28  
 **C++ Library**: ur_rtde v1.6.0  
-**Wrapper Version**: UR.RTDE v2.0.0  
+**Wrapper Version**: UR.RTDE v1.1.0.0  
 **Status**: ✅ Production Ready (URSim Validated)
 
 ---

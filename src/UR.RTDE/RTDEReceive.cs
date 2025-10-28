@@ -267,6 +267,28 @@ namespace UR.RTDE
         }
 
         // ====================================================================
+        // RTDE Output Registers
+        // ====================================================================
+
+        public int GetOutputIntRegister(ushort reg)
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_receive_get_output_int_register(_handle, reg);
+        }
+
+        public double GetOutputDoubleRegister(ushort reg)
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_receive_get_output_double_register(_handle, reg);
+        }
+
+        public bool GetOutputBitRegister(ushort reg)
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_receive_get_output_bit_register(_handle, reg);
+        }
+
+        // ====================================================================
         // Analog I/O
         // ====================================================================
 

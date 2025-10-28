@@ -20,16 +20,33 @@ namespace URSimTests
             Console.WriteLine("=".PadRight(80, '='));
             Console.WriteLine();
 
-            var tests = new (string Name, Func<Task> Test)[]
+            var testList = new System.Collections.Generic.List<(string Name, Func<Task> Test)>
             {
                 ("ServoL - Cartesian Servoing", TestServoL),
-                ("ZeroFtSensor - Zero Force/Torque", TestZeroFtSensor),
                 ("ForceMode - Compliant Control", TestForceMode),
                 ("JogStart/Stop - Manual Jogging", TestJog),
                 ("TeachMode - Freedrive", TestTeachMode),
                 ("TriggerProtectiveStop - Safety", TestTriggerProtectiveStop),
                 ("Extended Receive Data", TestExtendedReceiveData)
             };
+
+            // Gate FT zeroing on capability flag (URSim often lacks FT emulation)
+            var enableFt = Environment.GetEnvironmentVariable("ENABLE_FT_TESTS");
+            if (!string.IsNullOrEmpty(enableFt) &&
+                (enableFt.Equals("1") || enableFt.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            {
+                testList.Insert(1, ("ZeroFtSensor - Zero Force/Torque", TestZeroFtSensor));
+            }
+
+            var enableRobotiq = Environment.GetEnvironmentVariable("ENABLE_ROBOTIQ_TESTS");
+            if (!string.IsNullOrEmpty(enableRobotiq) &&
+                (enableRobotiq.Equals("1") || enableRobotiq.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            {
+                testList.Add(("Robotiq (Script) - Open/Close", TestRobotiqScript));
+                testList.Add(("Robotiq (RTDE) - Activate/Open/Close", TestRobotiqRtde));
+            }
+
+            var tests = testList.ToArray();
 
             int passed = 0, failed = 0;
 
@@ -205,6 +222,38 @@ namespace URSimTests
 
             // Note: In URSim, you may need to manually clear the protective stop
             // via the GUI or a program. This test just verifies the command works.
+        }
+
+        // ====================================================================
+        // Robotiq (Option 2 - URScript)
+        // ====================================================================
+
+        static async Task TestRobotiqScript()
+        {
+            const string host = ROBOT_IP;
+            var gripper = new RobotiqGripper(host, port: 30002);
+            await gripper.ConnectAsync();
+
+            // These calls require the Robotiq URCap installed/enabled on the controller.
+            await gripper.ActivateAsync();
+            await Task.Delay(500);
+            await gripper.OpenAsync();
+            await Task.Delay(500);
+            await gripper.CloseAsync();
+            await Task.Delay(500);
+        }
+
+        static async Task TestRobotiqRtde()
+        {
+            using var ctrl = new RTDEControl(ROBOT_IP);
+            using var recv = new RTDEReceive(ROBOT_IP);
+            var gripper = new RobotiqGripperRtde(ctrl, recv);
+
+            // Install the bridge and do a quick sequence
+            await gripper.InstallBridgeAsync();
+            await gripper.ActivateAsync();
+            await gripper.OpenAsync();
+            await gripper.CloseAsync();
         }
 
         // ====================================================================

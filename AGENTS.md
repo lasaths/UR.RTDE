@@ -2,7 +2,7 @@
 
 **Status**: ✅ **PRODUCTION READY** (61 Methods Implemented & Tested)  
 **Date**: 2025-10-28  
-**Version**: 2.0.0 (URSim Validated)  
+**Version**: 1.1.0.0 (URSim Validated)  
 **Validation**: URSim e-Series 5.23.0 @ 172.18.0.2 ✅ ALL TESTS PASSED (7/7)
 
 ---
@@ -331,7 +331,7 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 38. ⏳ **Rhino 8 test**: Awaiting Rhino environment
 
 ### Phase 7: Future Enhancements 📋 PLANNED
-39. 📋 **NuGet publish**: Publish v2.0.0 to NuGet.org
+39. 📋 **NuGet publish**: Publish v1.1.0.0 to NuGet.org
 40. 📋 **Grasshopper components**: GH integration for Rhino 7/8
 41. 📋 **macOS native build**: arm64 binaries via CI
 42. 📋 **CI/CD**: GitHub Actions workflows
@@ -483,7 +483,7 @@ See **[UPDATING_URRTDE.md](UPDATING_URRTDE.md)** for complete step-by-step instr
    - Verify macOS compatibility (if available)
 
 3. **NuGet Publishing**
-   - Version bump to 2.0.0
+   - Version bump to 1.1.0.0
    - Update package metadata
    - Publish to NuGet.org
 

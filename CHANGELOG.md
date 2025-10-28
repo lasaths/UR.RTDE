@@ -19,63 +19,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.0.0] - 2025-10-28
+## [1.1.0.0] - 2025-10-28
 
 ### Added
-- **Complete API coverage**: 61 methods across 3 interfaces (Control, Receive, I/O)
-- **RTDEControl** extended features (13 methods total):
-  - Movement: `MoveJ`, `MoveL`, `MoveC`, `SpeedJ`, `SpeedL`, `ServoJ`, `ServoC`
-  - Stop modes: `StopJ`, `StopL`, `ServoStop`, `SpeedStop`
-  - Configuration: `SetTcp`, `SetPayload`
-  - Kinematics: `GetInverseKinematics`, `GetForwardKinematics`, `IsPoseWithinSafetyLimits`
-  - Status: `IsProgramRunning` property, `IsSteady` property
-- **RTDEReceive** extended features (16 methods total):
-  - Position data: `GetActualQ`, `GetTargetQ`, `GetActualQd`, `GetTargetQd`, `GetActualQdd`, `GetTargetQdd`
-  - TCP data: `GetActualTcpPose`, `GetTargetTcpPose`, `GetActualTcpSpeed`
-  - Force/torque: `GetActualTcpForce`, `GetTargetMoment`
-  - Monitoring: `GetJointTemperatures`, `GetActualCurrent`, `GetTargetCurrent`
-  - Status: `GetRobotMode`, `GetSafetyMode`, `GetRuntimeState`
-  - Safety: `IsProtectiveStopped` property, `IsEmergencyStopped` property
-  - Digital I/O: `GetActualDigitalInputBits`, `GetActualDigitalOutputBits`
-- **RTDEIO** new class (6 methods):
-  - Digital I/O: `SetStandardDigitalOut`, `SetToolDigitalOut`
-  - Analog output: `SetStandardAnalogOut`, `SetAnalogOutputVoltage`, `SetAnalogOutputCurrent`
-  - Control: `SetSpeedSlider`
-- **Comprehensive documentation**:
-  - [UPDATING_URRTDE.md](UPDATING_URRTDE.md) - Complete guide for updating to newer ur_rtde versions
-  - [TEST_REPORT.md](TEST_REPORT.md) - URSim validation results (7/7 tests passed)
-  - [BUILD_SUCCESS.md](BUILD_SUCCESS.md) - Build process documentation
-  - [FEATURE_COVERAGE.md](FEATURE_COVERAGE.md) - API coverage matrix
-- **URSim validation**: All features tested with URSim e-Series 5.23.0 @ 172.18.0.2
+- Robotiq Gripper Support
+  - Option 2 (URScript client): `URScriptClient` + `RobotiqGripper` with `rq_activate`, `rq_open`, `rq_close`, `rq_move`, `rq_set_speed`, `rq_set_force`.
+  - Option 3 (Fast RTDE-register bridge): `RobotiqGripperRtde` with one-time URScript bridge and low-latency control via RTDE input/output registers (SDU-style indices).
+- Native C API expansions (facade):
+  - RTDEControl: `set_input_int/double/bit_register`, `send_custom_script`.
+  - RTDEReceive: `get_output_int/double/bit_register`.
+- C# wrappers for register access and custom script upload.
+- Test gating via environment variables: `ENABLE_ROBOTIQ_TESTS`, `ENABLE_FT_TESTS`.
+- Samples updated to include Robotiq (gated) and register access examples.
 
 ### Changed
-- Upgraded to **production-ready status** after comprehensive testing
-- Enhanced error handling with detailed exception messages
-- Improved P/Invoke marshaling for array parameters
-- Updated documentation with test results and version matrix
+- Bumped package version to 1.1.0.0 and updated release notes.
+- README/Docs updated with Robotiq usage (URCap requirement) and test flags.
+- Minor hardening of integration tests and environment configurability.
 
-### Fixed
-- Boost 1.89.0 compatibility patches applied to ur_rtde v1.6.0 source
-  - Changed `boost::asio::io_service` → `boost::asio::io_context` in `rtde.h` and `rtde.cpp`
-- Fixed DLL deployment in NuGet package (`runtimes/win-x64/native/` structure)
-- Corrected P/Invoke calling conventions (Cdecl) for all native methods
+### Fixed/Notes
+- FT zeroing in URSim can be unavailable; test gated via `ENABLE_FT_TESTS`.
+- Intermittent first-connect hiccup observed in some environments; subsequent connects succeed.
 
 ### Technical Details
-- **Native Libraries**:
-  - `rtde.dll` (777 KB) - ur_rtde v1.6.0 core library
-  - `ur_rtde_c_api.dll` (46.5 KB) - C API facade with 56 exported functions
-- **Managed Assemblies**:
-  - `UR.RTDE.dll` (21 KB) for net48 and net8.0
-- **Dependencies**:
-  - Boost 1.89.0 (113 packages via vcpkg)
-  - Visual Studio 2022 (v143 toolset)
-- **Build Time**: ~70 minutes total (60 min Boost, 10 min native)
-- **Test Results**:
-  - Connection: ✅ Stable
-  - Streaming: ✅ 98.6 Hz (986 samples in 10s, C# overhead)
-  - Movement: ✅ ±0.01 rad precision
-  - Emergency stop: ✅ Immediate response
-  - Reconnection: ✅ Stable
+- Built on ur_rtde v1.6.0 by SDU Robotics.
+- Native facade adds register and script endpoints; managed layer exposes safe wrappers.
+- URSim e-Series 5.23.0 validated; core suite passes, Robotiq tests require URCap.
 
 ---
 
@@ -118,14 +87,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | ur_rtde | Status | Key Features |
 |---------|------|---------|--------|--------------|
-| **2.0.0** | 2025-10-28 | v1.6.0 | ✅ Production Ready | 61 methods, URSim validated, complete docs |
+| **1.1.0.0** | 2025-10-28 | v1.6.0 | ✅ Feature Update | Robotiq support, register APIs, docs |
 | **1.0.0** | 2025-10-27 | v1.6.0 | 🔄 Initial Release | Basic control/receive, NuGet packaging |
 
 ---
 
 ## Upgrade Guide
 
-### From 1.0.0 to 2.0.0
+### From 1.0.0 to 1.1.0.0
 
 **Breaking Changes**: None (fully backward compatible)
 
@@ -139,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New RTDEIO class for I/O control and analog output
 
 **Migration Steps**:
-1. Update NuGet package: `dotnet add package UR.RTDE --version 2.0.0`
+1. Update NuGet package: `dotnet add package UR.RTDE --version 1.1.0.0`
 2. No code changes required (existing code continues to work)
 3. Optionally use new features:
 
