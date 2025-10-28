@@ -184,9 +184,9 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructi
 
 ## 🏷️ Release
 
-We use SemVer. This version is 1.1.0.0.
+We use SemVer. This version is 1.1.0.0 (NuGet normalized as 1.1.0).
 
-Steps to publish a GitHub Release (CI will attach the nupkg and use CHANGELOG as notes):
+Steps to publish a GitHub Release (manual):
 
 ```powershell
 # Ensure your working tree is clean and up to date
@@ -196,7 +196,7 @@ git pull origin main
 git tag v1.1.0.0 -m "UR.RTDE 1.1.0.0"
 git push origin v1.1.0.0
 
-# GitHub Actions will create the Release and attach the nupkg
+# Create a GitHub Release for tag v1.1.0.0 and upload the nupkg
 ```
 
 NuGet publish (manual):

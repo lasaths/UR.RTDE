@@ -334,8 +334,8 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 39. ✅ **NuGet publish**: Published v1.1.0 to NuGet.org
 40. 📋 **Grasshopper components**: GH integration for Rhino 7/8
 41. 📋 **macOS native build**: arm64 binaries via CI
-42. ✅ **CI/CD**: GitHub Release workflow (tag → release with nupkg)
-43. 📋 **Additional features**: Dashboard client, Script client, remaining ur_rtde APIs
+42. 🔄 **CI/CD**: GitHub Actions disabled (URSim not accessible). Manual release process documented.
+43. 📋 **Additional features**: Dashboard client, remaining ur_rtde APIs
 44. 📋 **Long-duration stress test**: 5+ min streaming @ 500 Hz
 45. 📋 **Performance profiling**: Memory, CPU, latency analysis
 
