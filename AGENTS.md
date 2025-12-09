@@ -71,6 +71,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
   * Version matrix (Rhino versions, .NET, `ur_rtde` commit).
   * **[UPDATING_URRTDE.md](UPDATING_URRTDE.md)** - Comprehensive guide for updating to newer ur_rtde versions
   * **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
+  * Status/coverage summary lives in `README.md` (single source; keep in sync with this file)
 * **CI** that builds native + managed, runs unit tests, and packs the NuGet.
 
 ## Acceptance Criteria - Current Status
@@ -85,7 +86,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 | **MoveJ execution** | ✅ TESTED | URSim validation passed ±0.01 rad |
 | **Stop execution** | ✅ TESTED | Emergency stop validated |
 | **No manual DLL copy** | ✅ COMPLETE | NuGet runtimes/ structure working |
-| **Clear documentation** | ✅ COMPLETE | README, TEST_REPORT, FEATURE_COVERAGE |
+| **Clear documentation** | ✅ COMPLETE | README (status/coverage), TEST_REPORT |
 | **No drops** | ✅ TESTED | 986 samples, 100% reliability |
 | **Extended features** | ✅ COMPLETE | **70+ methods**: Kinematics, I/O, Force, Safety, Jog, TeachMode, Robotiq |
 
@@ -248,8 +249,7 @@ dotnet run --configuration Release --framework net8.0
 1. Update version in `README.md`
 2. Update version in `AGENTS.md`
 3. Add entry to `CHANGELOG.md`
-4. Update `FEATURE_COVERAGE.md` if new methods added
-5. Update `IMPLEMENTATION_COMPLETE.md` with new features
+4. Refresh README/AGENTS status/coverage summaries if feature set changes
 
 ### Step 13: Create NuGet Package
 ```bash
@@ -504,5 +504,3 @@ See **[UPDATING_URRTDE.md](UPDATING_URRTDE.md)** for complete step-by-step instr
 - C# wrapper: ~6 seconds
 - NuGet package: ~2 seconds
 - **Total**: ~70 minutes
-
-

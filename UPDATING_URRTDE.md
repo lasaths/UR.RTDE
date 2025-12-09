@@ -594,9 +594,9 @@ Built on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++ library (v1.7.0) 
 1. ✅ A thin **native C ABI façade** over `ur_rtde` v1.7.0
 ```
 
-### 8.3 Update FEATURE_COVERAGE.md
+### 8.3 Update status summaries
 
-Add new features to the coverage matrix.
+Add new features to the status/coverage summary in README (and mirror key notes in AGENTS.md).
 
 ### 8.4 Create CHANGELOG.md Entry
 
@@ -813,7 +813,7 @@ Use this checklist when updating ur_rtde:
 - [ ] **Step 13**: Long-duration stability test
 - [ ] **Step 14**: Update README.md
 - [ ] **Step 15**: Update AGENTS.md
-- [ ] **Step 16**: Update FEATURE_COVERAGE.md
+- [ ] **Step 16**: Refresh README status/coverage section
 - [ ] **Step 17**: Create CHANGELOG.md entry
 - [ ] **Step 18**: Update version numbers
 - [ ] **Step 19**: Create NuGet package

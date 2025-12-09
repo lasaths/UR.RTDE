@@ -44,9 +44,30 @@ Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++
 
 ---
 
+## 📊 Status & Coverage (summary)
+- **Production ready**: URSim e-Series 5.23.0 validation; 22/22 core + 6/6 advanced tests passing (MoveJ/L, ServoJ/L, SpeedJ/L, ForceMode, Jog, TeachMode, Protective Stop, extended receive data).
+- **Performance**: Native P/Invoke, fast-path register bridge for Robotiq; sustained high-frequency streaming validated in URSim.
+- **Coverage focus**: Movement, kinematics, safety, receive data (targets, force, temps, currents), digital/analog I/O, Robotiq (native, URScript, RTDE bridge).
+- **Remaining**: Dashboard/Script client and extended receive extras can be added in future iterations; see AGENTS.md for roadmap notes.
+
+---
+
 ## 🤝 Robotiq Gripper Support (URCap)
 
-Two options are available when the Robotiq URCap is installed on the controller:
+Three options are available when the Robotiq URCap is installed on the controller:
+
+- Option 1 (Native driver on 63352, no URScript dependency):
+  - Use `RobotiqGripperNative` (wraps `ur_rtde::RobotiqGripper` socket client).
+  - Example:
+    ```csharp
+    using var g = new RobotiqGripperNative("192.168.1.100");
+    g.Connect();
+    g.Activate();
+    g.SetSpeed(0.5f);
+    g.SetForce(0.5f);
+    g.Open(moveMode: RobotiqMoveMode.WaitFinished);
+    g.Close(moveMode: RobotiqMoveMode.WaitFinished);
+    ```
 
 - Option 2 (URScript client, simple):
   - Use `RobotiqGripper` over TCP port 30002 to call URCap functions (`rq_activate`, `rq_open`, `rq_close`, `rq_move`, `rq_set_speed`, `rq_set_force`).
@@ -165,15 +186,14 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructi
 
 ## 📚 Documentation
 
-- **[Implementation Complete Report](IMPLEMENTATION_COMPLETE.md)** ⭐ **NEW!** Complete feature list and status
 - **[Test Report](TEST_REPORT.md)** ⭐ Complete URSim validation results (22/22 tests passed)
-- **[Build Success Report](BUILD_SUCCESS.md)** - Complete build details and achievements
-- [Build Instructions](BUILD_INSTRUCTIONS.md) - Manual build steps
 - [Updating ur_rtde](UPDATING_URRTDE.md) - Step-by-step guide for updating to newer ur_rtde versions
 - [Changelog](CHANGELOG.md) - Version history and upgrade guide
 - [Agent Instructions](AGENTS.md) - For AI agents/developers
-- [Feature Coverage](FEATURE_COVERAGE.md) - Complete API coverage analysis
 - [Test Plan](TEST_PLAN.md) - Comprehensive test strategy
+- [docs/quickstart.md](docs/quickstart.md) - Quick start for Rhino/URSim
+- [docs/troubleshooting.md](docs/troubleshooting.md) - Common runtime issues
+- [docs/version-matrix.md](docs/version-matrix.md) - Supported versions and RIDs
 
 ### Test Flags
 - `ROBOT_IP`: overrides the default robot/URSim IP (default: `localhost`).
