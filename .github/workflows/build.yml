@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Pack (Windows only)
 
 on:
   push:
@@ -7,20 +7,23 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build-native-windows:
+  build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup vcpkg
+        id: setup-vcpkg
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
 
       - name: Install Boost
-        run: vcpkg install boost-system:x64-windows boost-thread:x64-windows
+        run: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}/vcpkg install boost-system:x64-windows boost-thread:x64-windows
 
       - name: Clone and build ur_rtde
+        env:
+          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}
         run: |
           git clone --recursive https://gitlab.com/sdurobotics/ur_rtde.git
           cd ur_rtde
@@ -32,6 +35,8 @@ jobs:
           cmake --install . --prefix ../install
 
       - name: Build C API Facade
+        env:
+          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}
         run: |
           cd native/facade
           mkdir build
@@ -45,86 +50,26 @@ jobs:
           copy native\facade\build\Release\*.dll src\UR.RTDE\runtimes\win-x64\native\
           copy ur_rtde\install\bin\rtde.dll src\UR.RTDE\runtimes\win-x64\native\
 
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-win-x64
-          path: src/UR.RTDE/runtimes/win-x64/native/
-
-  build-native-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          brew install boost cmake
-          echo "BOOST_ROOT=/opt/homebrew/opt/boost" >> $GITHUB_ENV
-          echo "CMAKE_PREFIX_PATH=/opt/homebrew/opt/boost" >> $GITHUB_ENV
-
-      - name: Clone and build ur_rtde
-        run: |
-          git clone --recursive https://gitlab.com/sdurobotics/ur_rtde.git
-          cd ur_rtde
-          git checkout v1.6.0
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DBOOST_ROOT=$BOOST_ROOT -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
-          make -j$(sysctl -n hw.ncpu)
-          make install DESTDIR=../install
-
-      - name: Build C API Facade
-        run: |
-          cd native/facade
-          mkdir build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR=${{ github.workspace }}/ur_rtde/install/usr/local/lib/cmake/ur_rtde -DBOOST_ROOT=$BOOST_ROOT -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
-          make -j$(sysctl -n hw.ncpu)
-
-      - name: Copy native artifacts
-        run: |
-          mkdir -p src/UR.RTDE/runtimes/osx-arm64/native
-          cp native/facade/build/*.dylib src/UR.RTDE/runtimes/osx-arm64/native/
-          cp ur_rtde/install/usr/local/lib/*.dylib src/UR.RTDE/runtimes/osx-arm64/native/
-
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-osx-arm64
-          path: src/UR.RTDE/runtimes/osx-arm64/native/
-
-  build-managed:
-    needs: [build-native-windows, build-native-macos]
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             8.0.x
 
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-win-x64
-          path: src/UR.RTDE/runtimes/win-x64/native/
-
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-osx-arm64
-          path: src/UR.RTDE/runtimes/osx-arm64/native/
-
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build managed
         run: dotnet build --configuration Release --no-restore
 
       - name: Pack NuGet
         run: dotnet pack src/UR.RTDE/UR.RTDE.csproj --configuration Release --no-build --output nupkg
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-win-x64
+          path: src/UR.RTDE/runtimes/win-x64/native/
 
       - name: Upload NuGet package
         uses: actions/upload-artifact@v4
