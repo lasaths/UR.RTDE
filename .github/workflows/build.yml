@@ -20,8 +20,8 @@ jobs:
 
       - name: Install Boost
         run: |
-          $env:VCPKG_EXE = "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}\vcpkg.exe"
-          & $env:VCPKG_EXE install boost-system:x64-windows boost-thread:x64-windows
+          $env:VCPKG_EXE = Join-Path "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}" "vcpkg.exe"
+          & "$env:VCPKG_EXE" install boost-system:x64-windows boost-thread:x64-windows
 
       - name: Clone and build ur_rtde
         env:
