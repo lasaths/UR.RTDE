@@ -227,19 +227,28 @@ namespace UR.RTDE
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
             if (_disposed) return;
+
+            // No managed resources to dispose; always tear down native handle.
             Disconnect();
             if (_handle != IntPtr.Zero)
             {
                 NativeMethods.ur_rtde_robotiq_gripper_destroy(_handle);
                 _handle = IntPtr.Zero;
             }
+
             _disposed = true;
         }
 
         ~RobotiqGripperNative()
         {
-            Dispose();
+            Dispose(false);
         }
     }
 

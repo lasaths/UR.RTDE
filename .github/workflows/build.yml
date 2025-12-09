@@ -44,7 +44,8 @@ jobs:
           git checkout v1.6.0
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+          $vcpkgToolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
           cmake --build . --config Release
           cmake --install . --prefix ../install
 
@@ -55,7 +56,8 @@ jobs:
           cd native/facade
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR=${{ github.workspace }}/ur_rtde/install/lib/cmake/ur_rtde -DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+          $vcpkgToolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
+          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR="${{ github.workspace }}/ur_rtde/install/lib/cmake/ur_rtde" -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
           cmake --build . --config Release
 
       - name: Copy native artifacts
