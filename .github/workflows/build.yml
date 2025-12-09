@@ -57,7 +57,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: brew install boost cmake
+        run: |
+          brew install boost cmake
+          echo "BOOST_ROOT=/opt/homebrew/opt/boost" >> $GITHUB_ENV
+          echo "CMAKE_PREFIX_PATH=/opt/homebrew/opt/boost" >> $GITHUB_ENV
 
       - name: Clone and build ur_rtde
         run: |
@@ -66,7 +69,7 @@ jobs:
           git checkout v1.6.0
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DBOOST_ROOT=$BOOST_ROOT -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
           make -j$(sysctl -n hw.ncpu)
           make install DESTDIR=../install
 
@@ -75,7 +78,7 @@ jobs:
           cd native/facade
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR=${{ github.workspace }}/ur_rtde/install/usr/local/lib/cmake/ur_rtde
+          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR=${{ github.workspace }}/ur_rtde/install/usr/local/lib/cmake/ur_rtde -DBOOST_ROOT=$BOOST_ROOT -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH
           make -j$(sysctl -n hw.ncpu)
 
       - name: Copy native artifacts
