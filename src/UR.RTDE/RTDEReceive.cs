@@ -172,7 +172,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             var q = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_receive_get_target_q(_handle, q));
+            CheckStatus(NativeMethods.ur_rtde_receive_get_target_q(_handle, q, (UIntPtr)q.Length));
             return q;
         }
 
@@ -183,7 +183,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             var pose = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_receive_get_target_tcp_pose(_handle, pose));
+            CheckStatus(NativeMethods.ur_rtde_receive_get_target_tcp_pose(_handle, pose, (UIntPtr)pose.Length));
             return pose;
         }
 
@@ -194,7 +194,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             var force = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_tcp_force(_handle, force));
+            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_tcp_force(_handle, force, (UIntPtr)force.Length));
             return force;
         }
 
@@ -205,7 +205,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             var temps = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_receive_get_joint_temperatures(_handle, temps));
+            CheckStatus(NativeMethods.ur_rtde_receive_get_joint_temperatures(_handle, temps, (UIntPtr)temps.Length));
             return temps;
         }
 
@@ -216,7 +216,7 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             var current = new double[6];
-            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_current(_handle, current));
+            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_current(_handle, current, (UIntPtr)current.Length));
             return current;
         }
 

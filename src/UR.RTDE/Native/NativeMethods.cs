@@ -40,6 +40,33 @@ namespace UR.RTDE.Native
             Default = UploadScript
         }
 
+        internal enum RobotiqMoveMode
+        {
+            StartMove = 0,
+            WaitFinished = 1
+        }
+
+        internal enum RobotiqMoveParameter
+        {
+            Position = 0,
+            Speed = 1,
+            Force = 2
+        }
+
+        internal enum RobotiqUnit
+        {
+            Device = 0,
+            Normalized = 1,
+            Percent = 2,
+            Millimeter = 3
+        }
+
+        internal enum RobotiqPositionId
+        {
+            Open = 0,
+            Close = 1
+        }
+
         // ====================================================================
         // Control Interface
         // ====================================================================
@@ -265,27 +292,32 @@ namespace UR.RTDE.Native
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_receive_get_target_q(
             IntPtr handle,
-            [Out] double[] q_out);
+            [Out] double[] q_out,
+            UIntPtr q_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_receive_get_target_tcp_pose(
             IntPtr handle,
-            [Out] double[] pose_out);
+            [Out] double[] pose_out,
+            UIntPtr pose_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_receive_get_actual_tcp_force(
             IntPtr handle,
-            [Out] double[] force_out);
+            [Out] double[] force_out,
+            UIntPtr force_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_receive_get_joint_temperatures(
             IntPtr handle,
-            [Out] double[] temps_out);
+            [Out] double[] temps_out,
+            UIntPtr temps_size);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_receive_get_actual_current(
             IntPtr handle,
-            [Out] double[] current_out);
+            [Out] double[] current_out,
+            UIntPtr current_size);
 
         // ====================================================================
         // RTDEReceive - Safety Status
@@ -476,6 +508,162 @@ namespace UR.RTDE.Native
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void ur_rtde_io_disconnect(IntPtr handle);
+
+        // ====================================================================
+        // Robotiq Gripper (robotiq_gripper.h)
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern IntPtr ur_rtde_robotiq_gripper_create(
+            string hostname,
+            int port,
+            [MarshalAs(UnmanagedType.I1)] bool verbose);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void ur_rtde_robotiq_gripper_destroy(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_connect(
+            IntPtr handle,
+            uint timeout_ms);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void ur_rtde_robotiq_gripper_disconnect(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_robotiq_gripper_is_connected(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_activate(
+            IntPtr handle,
+            [MarshalAs(UnmanagedType.I1)] bool auto_calibrate);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_auto_calibrate(
+            IntPtr handle,
+            float speed);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_robotiq_gripper_is_active(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float ur_rtde_robotiq_gripper_get_open_position(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float ur_rtde_robotiq_gripper_get_closed_position(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float ur_rtde_robotiq_gripper_get_current_position(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_robotiq_gripper_is_open(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_robotiq_gripper_is_closed(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_move(
+            IntPtr handle,
+            float position,
+            float speed,
+            float force,
+            int move_mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_open(
+            IntPtr handle,
+            float speed,
+            float force,
+            int move_mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_close(
+            IntPtr handle,
+            float speed,
+            float force,
+            int move_mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_emergency_release(
+            IntPtr handle,
+            int direction,
+            int move_mode);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_fault_status(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_set_unit(
+            IntPtr handle,
+            int param,
+            int unit);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_set_position_range_mm(
+            IntPtr handle,
+            int range_mm);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float ur_rtde_robotiq_gripper_set_speed(
+            IntPtr handle,
+            float speed);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float ur_rtde_robotiq_gripper_set_force(
+            IntPtr handle,
+            float force);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_object_detection_status(
+            IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int ur_rtde_robotiq_gripper_wait_for_motion_complete(
+            IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern Status ur_rtde_robotiq_gripper_set_var(
+            IntPtr handle,
+            string name,
+            int value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern int ur_rtde_robotiq_gripper_get_var(
+            IntPtr handle,
+            string name);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern Status ur_rtde_robotiq_gripper_set_vars(
+            IntPtr handle,
+            string[] names,
+            int[] values,
+            UIntPtr count);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern Status ur_rtde_robotiq_gripper_get_vars(
+            IntPtr handle,
+            string[] names,
+            UIntPtr count,
+            [Out] int[] values);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_get_native_position_range(
+            IntPtr handle,
+            out int min_position,
+            out int max_position);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_robotiq_gripper_set_native_position_range(
+            IntPtr handle,
+            int min_position,
+            int max_position);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern IntPtr ur_rtde_robotiq_gripper_get_last_error(IntPtr handle);
 
         // ====================================================================
         // Helper Methods
