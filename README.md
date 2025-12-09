@@ -19,7 +19,7 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 
 ## Target Features
 
-### Core Capabilities (v1.1.0.0)
+### Core Capabilities (v1.1.1.0)
 - Native C++ P/Invoke; sustained high-frequency streaming.
 - No external dependencies; native DLLs included in NuGet.
 - Supports Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8).
@@ -174,7 +174,7 @@ ur_rtde v1.6.0 source includes Boost 1.89.0 compatibility patches; see `BUILD_SU
 
 ## Release
 
-We use SemVer. This version is 1.1.0.0 (NuGet normalized as 1.1.0).
+We use SemVer. This version is 1.1.1.0 (NuGet normalized as 1.1.1).
 
 Steps to publish a GitHub Release (manual):
 
@@ -183,18 +183,18 @@ Steps to publish a GitHub Release (manual):
 git pull origin main
 
 # Tag the release (match csproj version)
-git tag v1.1.0.0 -m "UR.RTDE 1.1.0.0"
-git push origin v1.1.0.0
+git tag v1.1.1.0 -m "UR.RTDE 1.1.1.0"
+git push origin v1.1.1.0
 
-# Create a GitHub Release for tag v1.1.0.0 and upload the nupkg
+# Create a GitHub Release for tag v1.1.1.0 and upload the nupkg
 ```
 
 NuGet publish (manual):
 
 ```powershell
 dotnet pack src/UR.RTDE -c Release -o nupkgs
-# NuGet normalizes trailing .0 segments, so the file is '1.1.0'
-dotnet nuget push nupkgs/UR.RTDE.1.1.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+# NuGet normalizes trailing .0 segments, so the file is '1.1.1'
+dotnet nuget push nupkgs/UR.RTDE.1.1.1.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
 ```
 
 ---

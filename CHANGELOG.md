@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1.0] - 2025-09-12
+
+### Changed
+- CI simplified to Windows-only with corrected vcpkg/toolchain wiring.
+- Clarified native P/Invoke intent in managed wrappers and standardized RobotiqNative dispose pattern.
+- Documentation refreshed for the latest release workflow.
+
+### Fixed/Notes
+- Resolved vcpkg invocation path issues in CI.
+- URSim integration tests validated locally (22 core + 6 advanced).
+
+---
+
 ## [1.1.0.0] - 2025-10-28
 
 ### Added
@@ -85,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | ur_rtde | Status | Key Features |
 |---------|------|---------|--------|--------------|
+| **1.1.1.0** | 2025-09-12 | v1.6.0 | [OK] Maintenance | CI fixes, dispose pattern, docs refresh |
 | **1.1.0.0** | 2025-10-28 | v1.6.0 | [OK] Feature Update | Robotiq support, register APIs, docs |
 | **1.0.0** | 2025-10-27 | v1.6.0 | Initial Release | Basic control/receive, NuGet packaging |
 
