@@ -1,3 +1,7 @@
+// This file implements a P/Invoke wrapper around native C++ code (ur_rtde::RTDEReceive).
+// All NativeMethods.* calls are intentional and required - this is the purpose of the wrapper.
+// These calls cannot be replaced with managed code as they interface with native C++ libraries.
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;

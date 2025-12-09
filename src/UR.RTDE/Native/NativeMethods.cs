@@ -644,7 +644,7 @@ namespace UR.RTDE.Native
             UIntPtr count);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern Status ur_rtde_robotiq_gripper_get_vars(
+        internal static extern Status ur_rtde_robotiq_gripper_get_vars(
             IntPtr handle,
             string[] names,
             UIntPtr count,
@@ -679,7 +679,7 @@ namespace UR.RTDE.Native
             int max_position);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        private static extern IntPtr ur_rtde_robotiq_gripper_get_last_error(IntPtr handle);
+        internal static extern IntPtr ur_rtde_robotiq_gripper_get_last_error(IntPtr handle);
 
         /// <summary>
         /// Returns the last error string for the Robotiq gripper, marshaled to a managed string.

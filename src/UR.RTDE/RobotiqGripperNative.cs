@@ -1,3 +1,7 @@
+// This file implements a P/Invoke wrapper around native C++ code (ur_rtde::RobotiqGripper).
+// All NativeMethods.* calls are intentional and required - this is the purpose of the wrapper.
+// These calls cannot be replaced with managed code as they interface with native C++ libraries.
+
 using System;
 using System.Linq;
 using UR.RTDE.Native;
@@ -7,6 +11,9 @@ namespace UR.RTDE
     /// <summary>
     /// Native wrapper around ur_rtde::RobotiqGripper (direct socket driver, no URScript dependency).
     /// Default port: 63352 (Robotiq gripper server on UR controller/URCap).
+    /// 
+    /// This class uses P/Invoke to call native C++ functions. All NativeMethods.* calls are intentional
+    /// and required for interfacing with the underlying ur_rtde C++ library.
     /// </summary>
     public sealed class RobotiqGripperNative : IDisposable
     {

@@ -64,3 +64,5 @@ test-results*.txt
 *.obj
 *.pdb
 native/facade/build/
+`r`n# Local extracted nuget/native artifacts`r`n_download/
+ _nupkg_extract/
