@@ -1,4 +1,4 @@
-# Build Instructions for Native Façade
+# Build Instructions for Native Facade
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ make -j$(sysctl -n hw.ncpu)
 make install DESTDIR=../install
 ```
 
-## Step 2: Build C API Façade
+## Step 2: Build C API Facade
 
 ```bash
 cd ../../native/facade

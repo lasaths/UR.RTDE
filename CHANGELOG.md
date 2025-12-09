@@ -87,8 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | ur_rtde | Status | Key Features |
 |---------|------|---------|--------|--------------|
-| **1.1.0.0** | 2025-10-28 | v1.6.0 | ✅ Feature Update | Robotiq support, register APIs, docs |
-| **1.0.0** | 2025-10-27 | v1.6.0 | 🔄 Initial Release | Basic control/receive, NuGet packaging |
+| **1.1.0.0** | 2025-10-28 | v1.6.0 | [OK] Feature Update | Robotiq support, register APIs, docs |
+| **1.0.0** | 2025-10-27 | v1.6.0 | Initial Release | Basic control/receive, NuGet packaging |
 
 ---
 

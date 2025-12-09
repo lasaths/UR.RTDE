@@ -1,4 +1,4 @@
-# UR.RTDE — C# Native Wrapper for Universal Robots
+# UR.RTDE - C# Native Wrapper for Universal Robots
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-4.8%20%7C%208.0-512BD4)](https://dotnet.microsoft.com/)
@@ -10,41 +10,41 @@
 
 Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++ library (v1.6.0) by SDU Robotics.
 
-## ⚠️ AI-Built & Liability Disclaimer
+## AI-Built & Liability Disclaimer
 
 - Portions of this repository (code, scripts, and documentation) were authored with AI assistance and curated by the project maintainer.
-- This software is provided “AS IS”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. See the [LICENSE](LICENSE) for full terms.
+- This software is provided AS IS, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. See the [LICENSE](LICENSE) for full terms.
 - The author(s) and contributors shall not be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
-- Robotics Safety: You are solely responsible for safe deployment. Always test in simulation first (e.g., URSim), validate limits, and follow applicable safety standards (e.g., ISO 10218/TS 15066) and your organization’s safety procedures.
+- Robotics Safety: You are solely responsible for safe deployment. Always test in simulation first (e.g., URSim), validate limits, and follow applicable safety standards (e.g., ISO 10218/TS 15066) and your organizations safety procedures.
 - Not affiliated with or endorsed by Universal Robots A/S or SDU Robotics. All trademarks are the property of their respective owners.
 
 ---
 
-## 🎯 Features
+## Target Features
 
 ### Core Capabilities (v1.1.0.0)
-- ✅ **Native Performance** - Direct C++ via P/Invoke (500+ Hz streaming)
-- ✅ **Zero Dependencies** - No Python, all native DLLs included in NuGet  
-- ✅ **Rhino 7 & 8** - Works in both (.NET Framework 4.8 and .NET 8)
-- ✅ **Cross-Platform** - Windows x64 ready, macOS arm64 pending
-- ✅ **One-Click Install** - Single NuGet package, automatic deployment
+- [OK] **Native Performance** - Direct C++ via P/Invoke (500+ Hz streaming)
+- [OK] **Zero Dependencies** - No Python, all native DLLs included in NuGet  
+- [OK] **Rhino 7 & 8** - Works in both (.NET Framework 4.8 and .NET 8)
+- [OK] **Cross-Platform** - Windows x64 ready, macOS arm64 pending
+- [OK] **One-Click Install** - Single NuGet package, automatic deployment
 
 ### API Coverage (70+ Methods - All Major Features Implemented)
-- ✅ **Movement Control** (15 methods) - MoveJ/L, SpeedJ/L, ServoJ/C/L, advanced stop modes
-- ✅ **Force Control** (5 methods) - **NEW!** ForceMode, ZeroFtSensor, damping/gain adjustment
-- ✅ **Jogging & Teaching** (4 methods) - **NEW!** JogStart/Stop, TeachMode, freedrive
-- ✅ **Kinematics** (3 methods) - IK, FK, solution checking for path planning
-- ✅ **Data Streaming** (20 methods) - Position, velocity, force, temperature, current, analog I/O
-- ✅ **I/O Control** (6 methods) - Digital/analog outputs, speed slider
-- ✅ **Safety Monitoring** (4 properties, 3 methods) - Protective/emergency stop, safety status, trigger protective stop
-- ✅ **Status Queries** (3 properties) - Program running, robot steady, detailed status bits
-- ✅ **Connection Management** - Robust connect/disconnect, reconnection, timeout handling
+- [OK] **Movement Control** (15 methods) - MoveJ/L, SpeedJ/L, ServoJ/C/L, advanced stop modes
+- [OK] **Force Control** (5 methods) - **NEW!** ForceMode, ZeroFtSensor, damping/gain adjustment
+- [OK] **Jogging & Teaching** (4 methods) - **NEW!** JogStart/Stop, TeachMode, freedrive
+- [OK] **Kinematics** (3 methods) - IK, FK, solution checking for path planning
+- [OK] **Data Streaming** (20 methods) - Position, velocity, force, temperature, current, analog I/O
+- [OK] **I/O Control** (6 methods) - Digital/analog outputs, speed slider
+- [OK] **Safety Monitoring** (4 properties, 3 methods) - Protective/emergency stop, safety status, trigger protective stop
+- [OK] **Status Queries** (3 properties) - Program running, robot steady, detailed status bits
+- [OK] **Connection Management** - Robust connect/disconnect, reconnection, timeout handling
 
 **Total**: 70+ methods across RTDEControl, RTDEReceive, and RTDEIO interfaces
 
 ---
 
-## 📊 Status & Coverage (summary)
+## Status & Coverage (summary)
 - **Production ready**: URSim e-Series 5.23.0 validation; 22/22 core + 6/6 advanced tests passing (MoveJ/L, ServoJ/L, SpeedJ/L, ForceMode, Jog, TeachMode, Protective Stop, extended receive data).
 - **Performance**: Native P/Invoke, fast-path register bridge for Robotiq; sustained high-frequency streaming validated in URSim.
 - **Coverage focus**: Movement, kinematics, safety, receive data (targets, force, temps, currents), digital/analog I/O, Robotiq (native, URScript, RTDE bridge).
@@ -52,7 +52,7 @@ Built on the battle-tested [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) C++
 
 ---
 
-## 🤝 Robotiq Gripper Support (URCap)
+## Robotiq Gripper Support (URCap)
 
 Three options are available when the Robotiq URCap is installed on the controller:
 
@@ -100,11 +100,11 @@ Notes:
 
 ---
 
-## 📦 Installation
+## Package Installation
 
 ### From Local Build
 ```bash
-dotnet add package UR.RTDE --source C:\Users\lasaths\Github\UR.RTDE\nupkgs
+dotnet add package UR.RTDE --source C:\path\to\UR.RTDE\nupkgs
 ```
 
 ### From NuGet.org (coming soon)
@@ -116,7 +116,7 @@ dotnet add package UR.RTDE
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```csharp
 using UR.RTDE;
@@ -136,9 +136,9 @@ Console.WriteLine($"Joint 0: {q[0]:F4} rad");
 
 ---
 
-## 🔨 Building from Source
+## Building from Source
 
-**Status**: ✅ **Build verified and working**  
+**Status**: [OK] **Build verified and working**  
 **See**: [BUILD_SUCCESS.md](BUILD_SUCCESS.md) for build details
 
 ### Prerequisites
@@ -153,7 +153,7 @@ Console.WriteLine($"Joint 0: {q[0]:F4} rad");
 **Option 1: Automated** (recommended)
 ```powershell
 cd UR.RTDE
-.\build-complete.bat  # Builds everything: Boost → ur_rtde → C API → C# → NuGet
+.\build-complete.bat  # Builds everything: Boost -> ur_rtde -> C API -> C# -> NuGet
 ```
 
 **Option 2: Manual Steps**
@@ -163,7 +163,7 @@ cd C:\vcpkg
 vcpkg install boost:x64-windows
 
 # 2. Build ur_rtde
-cd C:\Users\lasaths\Github\UR.RTDE\build-native\ur_rtde\build
+cd C:\path\to\UR.RTDE\build-native\ur_rtde\build
 cmake --build . --config Release
 
 # 3. Build C API facade
@@ -184,13 +184,11 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructi
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-- **[Test Report](TEST_REPORT.md)** ⭐ Complete URSim validation results (22/22 tests passed)
-- [Updating ur_rtde](UPDATING_URRTDE.md) - Step-by-step guide for updating to newer ur_rtde versions
+- Test results and plan: summarized below (full historical reports removed for brevity)
 - [Changelog](CHANGELOG.md) - Version history and upgrade guide
 - [Agent Instructions](AGENTS.md) - For AI agents/developers
-- [Test Plan](TEST_PLAN.md) - Comprehensive test strategy
 - [docs/quickstart.md](docs/quickstart.md) - Quick start for Rhino/URSim
 - [docs/troubleshooting.md](docs/troubleshooting.md) - Common runtime issues
 - [docs/version-matrix.md](docs/version-matrix.md) - Supported versions and RIDs
@@ -202,7 +200,26 @@ See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete manual instructi
 
 ---
 
-## 🏷️ Release
+## Test Plan (summary)
+- Location: `samples/ExtendedFeaturesTest/Program.cs`
+- Coverage: kinematics, extended data, safety status, analog/digital I/O, advanced motion (ServoC/ServoStop/SpeedStop), speed slider.
+- Success criteria: 7/7 categories pass; IK round-trip error < 0.001 rad; safety flags valid; I/O round-trips match commands; robot stops cleanly.
+- Execution: `dotnet run -c Release` from `samples/ExtendedFeaturesTest` (optional test name filter).
+
+## Latest Test Results (URSim snapshot)
+- Date/Platform: 2025-10-27, Windows 11, .NET 8.0, URSim e-Series 5.23.0 (Docker, localhost).
+- Outcome: 7/7 tests passed; average streaming 98.6 Hz; MoveJ precision +/-0.01 rad; emergency stop immediate; reconnection stable.
+
+## Update ur_rtde (quick guide)
+1) Check new upstream tag/release notes on gitlab.com/sdurobotics/ur_rtde.  
+2) Refresh `build-native/ur_rtde` to the tag (backup old copy); apply Boost/compat patches if still needed.  
+3) Rebuild native lib and facade; copy DLLs into `src/UR.RTDE/runtimes/{rid}/native/`.  
+4) Add any new C API exports, P/Invoke bindings, and wrapper methods; update docs/tests.  
+5) Run test suite (URSim), bump versions, refresh README/AGENTS/CHANGELOG, and pack/publish NuGet.
+
+---
+
+## Release
 
 We use SemVer. This version is 1.1.0.0 (NuGet normalized as 1.1.0).
 
@@ -229,7 +246,7 @@ dotnet nuget push nupkgs/UR.RTDE.1.1.0.nupkg -k <API_KEY> -s https://api.nuget.o
 
 ---
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE)
 
@@ -237,4 +254,4 @@ MIT License - see [LICENSE](LICENSE)
 
 ---
 
-**Install now:** `dotnet add package UR.RTDE` 🚀
+**Install now:** `dotnet add package UR.RTDE`

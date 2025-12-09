@@ -81,29 +81,29 @@ dotnet run -c Release
 ## Expected Output
 
 ```
-═══════════════════════════════════════════════
+-----------------------------------------------
   UR.RTDE Integration Tests - URSim
-═══════════════════════════════════════════════
+-----------------------------------------------
 Target: 172.18.0.2
 Time: 2025-10-27 21:30:00
 
 Running: Test 1: Basic Connection
-─────────────────────────────────────────────
+---------------------------------------------
   Connected to control interface
   Connected to receive interface
   Connection stable
-✓ PASSED: Test 1: Basic Connection
+[OK] PASSED: Test 1: Basic Connection
 
 [... more tests ...]
 
-═══════════════════════════════════════════════
+-----------------------------------------------
   Test Summary
-═══════════════════════════════════════════════
+-----------------------------------------------
 Passed: 7
 Failed: 0
 Total:  7
 
-✓ ALL TESTS PASSED!
+[OK] ALL TESTS PASSED!
 ```
 
 ## Troubleshooting
@@ -141,5 +141,5 @@ Expected results on typical development machine:
 
 - Tests use conservative movement parameters (speed: 0.5, acceleration: 0.5)
 - All movements are small (< 0.5 radians) for safety
-- Emergency stop uses 5 rad/s² deceleration
+- Emergency stop uses 5 rad/s^2 deceleration
 - Each test has 30-second timeout

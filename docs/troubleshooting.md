@@ -55,12 +55,12 @@ cp -r runtimes/osx-arm64/native/*.dylib bin/Debug/net8.0/
 **Symptom**: `RTDEConnectionException: Failed to connect to robot`
 
 **Checklist**:
-1. ✅ Robot is powered on
-2. ✅ Robot is on same network as computer
-3. ✅ Ping robot IP: `ping 192.168.1.100`
-4. ✅ Port 30004 is open (RTDE protocol)
-5. ✅ Firewall allows connection
-6. ✅ Robot is not in "Local" mode (requires "Remote" mode)
+1. [OK] Robot is powered on
+2. [OK] Robot is on same network as computer
+3. [OK] Ping robot IP: `ping 192.168.1.100`
+4. [OK] Port 30004 is open (RTDE protocol)
+5. [OK] Firewall allows connection
+6. [OK] Robot is not in "Local" mode (requires "Remote" mode)
 
 **Test connection**:
 ```bash
@@ -91,11 +91,11 @@ nc -zv 192.168.1.100 30004
 ### MoveJ/MoveL returns but robot doesn't move
 
 **Checklist**:
-1. ✅ Robot is in "Remote Control" mode (not "Local")
-2. ✅ No protective stop active (check teach pendant)
-3. ✅ No safety violations (check SafetyMode)
-4. ✅ Target position is reachable (within joint limits)
-5. ✅ Speed/acceleration are within limits
+1. [OK] Robot is in "Remote Control" mode (not "Local")
+2. [OK] No protective stop active (check teach pendant)
+3. [OK] No safety violations (check SafetyMode)
+4. [OK] Target position is reachable (within joint limits)
+5. [OK] Speed/acceleration are within limits
 
 **Debug**:
 ```csharp

@@ -133,7 +133,7 @@ catch (RTDEException ex)
 
 ## Safety Notes
 
-⚠️ **IMPORTANT**
+[WARN] **IMPORTANT**
 - Always test in a safe environment
 - Keep emergency stop accessible
 - Use proper safety boundaries
