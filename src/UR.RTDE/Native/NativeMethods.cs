@@ -644,12 +644,28 @@ namespace UR.RTDE.Native
             UIntPtr count);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern Status ur_rtde_robotiq_gripper_get_vars(
+        private static extern Status ur_rtde_robotiq_gripper_get_vars(
             IntPtr handle,
             string[] names,
             UIntPtr count,
             [Out] int[] values);
 
+        /// <summary>
+        /// Managed wrapper for ur_rtde_robotiq_gripper_get_vars.
+        /// </summary>
+        internal static int[] RobotiqGripperGetVars(IntPtr handle, string[] names)
+        {
+            if (handle == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(handle));
+            if (names == null || names.Length == 0)
+                throw new ArgumentException("names array must not be null or empty", nameof(names));
+
+            int[] values = new int[names.Length];
+            Status status = ur_rtde_robotiq_gripper_get_vars(handle, names, (UIntPtr)names.Length, values);
+            if (status != Status.OK)
+                throw new InvalidOperationException($"Native call failed with status: {status}");
+            return values;
+        }
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_robotiq_gripper_get_native_position_range(
             IntPtr handle,
