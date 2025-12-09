@@ -49,6 +49,8 @@ Thumbs.db
 *.swp
 *~
 build-native/
+_download/
+_nupkg_extract/
 
 # Local artifacts
 nupkgs/
