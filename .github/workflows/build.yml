@@ -19,7 +19,9 @@ jobs:
           vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
 
       - name: Install Boost
-        run: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}/vcpkg.exe install boost-system:x64-windows boost-thread:x64-windows
+        run: |
+          $env:VCPKG_EXE = "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}\vcpkg.exe"
+          & $env:VCPKG_EXE install boost-system:x64-windows boost-thread:x64-windows
 
       - name: Clone and build ur_rtde
         env:
