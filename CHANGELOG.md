@@ -73,8 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - [README.md](README.md) - Quick start and installation
   - [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) - Manual build guide
   - [AGENTS.md](AGENTS.md) - Agent/developer instructions
-  - [TEST_PLAN.md](TEST_PLAN.md) - Testing strategy
-
 ### Technical Details
 - Built on ur_rtde v1.6.0 by SDU Robotics
 - Target platforms: Windows x64 (macOS arm64 planned)
@@ -87,8 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | ur_rtde | Status | Key Features |
 |---------|------|---------|--------|--------------|
-| **1.1.0.0** | 2025-10-28 | v1.6.0 | ✅ Feature Update | Robotiq support, register APIs, docs |
-| **1.0.0** | 2025-10-27 | v1.6.0 | 🔄 Initial Release | Basic control/receive, NuGet packaging |
+| **1.1.0.0** | 2025-10-28 | v1.6.0 | [OK] Feature Update | Robotiq support, register APIs, docs |
+| **1.0.0** | 2025-10-27 | v1.6.0 | Initial Release | Basic control/receive, NuGet packaging |
 
 ---
 
@@ -137,7 +135,3 @@ io.SetStandardDigitalOut(0, true);  // Set digital output 0
 - **NuGet** (planned): https://www.nuget.org/packages/UR.RTDE
 - **ur_rtde upstream**: https://gitlab.com/sdurobotics/ur_rtde
 - **License**: MIT
-
----
-
-**Note**: See [UPDATING_URRTDE.md](UPDATING_URRTDE.md) for instructions on updating to newer versions of the ur_rtde library.

@@ -5,10 +5,14 @@
 #include "ur_rtde_c_api.h"
 #include <ur_rtde/rtde_control_interface.h>
 #include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/robotiq_gripper.h>
 #include <memory>
 #include <string>
 #include <cstring>
 #include <exception>
+#include <vector>
+#include <utility>
+#include <iostream>
 
 using namespace ur_rtde;
 
@@ -30,6 +34,14 @@ struct ur_rtde_receive_handle {
   
   ur_rtde_receive_handle(const std::string& hostname, double freq)
     : receive(std::make_unique<RTDEReceiveInterface>(hostname, freq)) {}
+};
+
+struct ur_rtde_robotiq_gripper {
+  std::unique_ptr<ur_rtde::RobotiqGripper> gripper;
+  std::string last_error;
+
+  ur_rtde_robotiq_gripper(const std::string& hostname, int port, bool verbose)
+    : gripper(std::make_unique<ur_rtde::RobotiqGripper>(hostname, port, verbose)) {}
 };
 
 // ============================================================================
@@ -1230,4 +1242,436 @@ void ur_rtde_io_disconnect(ur_rtde_io_t* handle)
     if (handle && handle->io) {
         handle->io->disconnect();
     }
+}
+
+// ============================================================================
+// Robotiq Gripper Interface
+// ============================================================================
+
+ur_rtde_robotiq_gripper_t* ur_rtde_robotiq_gripper_create(
+    const char* hostname,
+    int port,
+    bool verbose)
+{
+    if (!hostname) return nullptr;
+    try {
+        return new ur_rtde_robotiq_gripper(hostname, port, verbose);
+    } catch (const std::exception& e) {
+        std::cerr << "RobotiqGripper create failed: " << e.what() << std::endl;
+        return nullptr;
+    }
+}
+
+void ur_rtde_robotiq_gripper_destroy(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    delete handle;
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_connect(
+    ur_rtde_robotiq_gripper_t* handle,
+    uint32_t timeout_ms)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->connect(timeout_ms);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+void ur_rtde_robotiq_gripper_disconnect(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return;
+    try {
+        handle->gripper->disconnect();
+    } catch (...) {
+        // ignore
+    }
+}
+
+bool ur_rtde_robotiq_gripper_is_connected(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->gripper->isConnected();
+    } catch (...) {
+        return false;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_activate(
+    ur_rtde_robotiq_gripper_t* handle,
+    bool auto_calibrate)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->activate(auto_calibrate);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_auto_calibrate(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->autoCalibrate(speed);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+bool ur_rtde_robotiq_gripper_is_active(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->gripper->isActive();
+    } catch (...) {
+        return false;
+    }
+}
+
+float ur_rtde_robotiq_gripper_get_open_position(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return 0.0f;
+    try {
+        return handle->gripper->getOpenPosition();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0.0f;
+    }
+}
+
+float ur_rtde_robotiq_gripper_get_closed_position(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return 0.0f;
+    try {
+        return handle->gripper->getClosedPosition();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0.0f;
+    }
+}
+
+float ur_rtde_robotiq_gripper_get_current_position(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return 0.0f;
+    try {
+        return handle->gripper->getCurrentPosition();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0.0f;
+    }
+}
+
+bool ur_rtde_robotiq_gripper_is_open(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->gripper->isOpen();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return false;
+    }
+}
+
+bool ur_rtde_robotiq_gripper_is_closed(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return false;
+    try {
+        return handle->gripper->isClosed();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return false;
+    }
+}
+
+int ur_rtde_robotiq_gripper_move(
+    ur_rtde_robotiq_gripper_t* handle,
+    float position,
+    float speed,
+    float force,
+    int move_mode)
+{
+    if (!handle) return -1;
+    try {
+        return handle->gripper->move(position, speed, force, static_cast<ur_rtde::RobotiqGripper::eMoveMode>(move_mode));
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return -1;
+    }
+}
+
+int ur_rtde_robotiq_gripper_open(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed,
+    float force,
+    int move_mode)
+{
+    if (!handle) return -1;
+    try {
+        return handle->gripper->open(speed, force, static_cast<ur_rtde::RobotiqGripper::eMoveMode>(move_mode));
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return -1;
+    }
+}
+
+int ur_rtde_robotiq_gripper_close(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed,
+    float force,
+    int move_mode)
+{
+    if (!handle) return -1;
+    try {
+        return handle->gripper->close(speed, force, static_cast<ur_rtde::RobotiqGripper::eMoveMode>(move_mode));
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return -1;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_emergency_release(
+    ur_rtde_robotiq_gripper_t* handle,
+    int direction,
+    int move_mode)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->emergencyRelease(
+            static_cast<ur_rtde::RobotiqGripper::ePostionId>(direction),
+            static_cast<ur_rtde::RobotiqGripper::eMoveMode>(move_mode));
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+int ur_rtde_robotiq_gripper_fault_status(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return static_cast<int>(ur_rtde::RobotiqGripper::eFaultCode::NO_FAULT);
+    try {
+        return handle->gripper->faultStatus();
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return static_cast<int>(ur_rtde::RobotiqGripper::eFaultCode::FAULT_INTERNAL);
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_set_unit(
+    ur_rtde_robotiq_gripper_t* handle,
+    int param,
+    int unit)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->setUnit(
+            static_cast<ur_rtde::RobotiqGripper::eMoveParameter>(param),
+            static_cast<ur_rtde::RobotiqGripper::eUnit>(unit));
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_set_position_range_mm(
+    ur_rtde_robotiq_gripper_t* handle,
+    int range_mm)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->setPositionRange_mm(range_mm);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+float ur_rtde_robotiq_gripper_set_speed(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed)
+{
+    if (!handle) return 0.0f;
+    try {
+        return handle->gripper->setSpeed(speed);
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0.0f;
+    }
+}
+
+float ur_rtde_robotiq_gripper_set_force(
+    ur_rtde_robotiq_gripper_t* handle,
+    float force)
+{
+    if (!handle) return 0.0f;
+    try {
+        return handle->gripper->setForce(force);
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0.0f;
+    }
+}
+
+int ur_rtde_robotiq_gripper_object_detection_status(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return -1;
+    try {
+        return static_cast<int>(handle->gripper->objectDetectionStatus());
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return -1;
+    }
+}
+
+int ur_rtde_robotiq_gripper_wait_for_motion_complete(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return -1;
+    try {
+        return static_cast<int>(handle->gripper->waitForMotionComplete());
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return -1;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_set_var(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char* name,
+    int value)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    if (!name) return UR_RTDE_ERROR_INVALID_PARAM;
+    try {
+        bool ok = handle->gripper->setVar(std::string(name), value);
+        return ok ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+int ur_rtde_robotiq_gripper_get_var(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char* name)
+{
+    if (!handle || !name) return 0;
+    try {
+        return handle->gripper->getVar(std::string(name));
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return 0;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_set_vars(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char** names,
+    const int* values,
+    size_t count)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    if (!names || !values) return UR_RTDE_ERROR_INVALID_PARAM;
+    try {
+        std::vector<std::pair<std::string, int>> vars;
+        vars.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            vars.emplace_back(names[i], values[i]);
+        }
+        bool ok = handle->gripper->setVars(vars);
+        return ok ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_get_vars(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char** names,
+    size_t count,
+    int* values_out)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    if (!names || !values_out) return UR_RTDE_ERROR_INVALID_PARAM;
+    try {
+        std::vector<std::string> vars;
+        vars.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            vars.emplace_back(names[i]);
+        }
+        auto result = handle->gripper->getVars(vars);
+        if (result.size() != count) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        for (size_t i = 0; i < count; ++i) {
+            values_out[i] = result[i];
+        }
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_get_native_position_range(
+    ur_rtde_robotiq_gripper_t* handle,
+    int* min_position,
+    int* max_position)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    if (!min_position || !max_position) return UR_RTDE_ERROR_INVALID_PARAM;
+    try {
+        handle->gripper->getNativePositionRange(*min_position, *max_position);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_robotiq_gripper_set_native_position_range(
+    ur_rtde_robotiq_gripper_t* handle,
+    int min_position,
+    int max_position)
+{
+    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
+    try {
+        handle->gripper->setNativePositionRange(min_position, max_position);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        handle->last_error = e.what();
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+const char* ur_rtde_robotiq_gripper_get_last_error(
+    ur_rtde_robotiq_gripper_t* handle)
+{
+    if (!handle) return "Invalid handle";
+    return handle->last_error.c_str();
 }

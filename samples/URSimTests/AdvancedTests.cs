@@ -42,6 +42,7 @@ namespace URSimTests
             if (!string.IsNullOrEmpty(enableRobotiq) &&
                 (enableRobotiq.Equals("1") || enableRobotiq.Equals("true", StringComparison.OrdinalIgnoreCase)))
             {
+                testList.Add(("Robotiq (Native API) - Open/Close", TestRobotiqNative));
                 testList.Add(("Robotiq (Script) - Open/Close", TestRobotiqScript));
                 testList.Add(("Robotiq (RTDE) - Activate/Open/Close", TestRobotiqRtde));
             }
@@ -225,8 +226,19 @@ namespace URSimTests
         }
 
         // ====================================================================
-        // Robotiq (Option 2 - URScript)
+        // Robotiq Gripper Tests
         // ====================================================================
+
+        static async Task TestRobotiqNative()
+        {
+            using var gripper = new RobotiqGripperNative(ROBOT_IP);
+            gripper.Connect();
+            gripper.Activate();
+            gripper.SetSpeed(0.5f); // normalized
+            gripper.SetForce(0.5f);
+            gripper.Open(force: 0.5f, moveMode: RobotiqMoveMode.WaitFinished);
+            gripper.Close(force: 0.5f, moveMode: RobotiqMoveMode.WaitFinished);
+        }
 
         static async Task TestRobotiqScript()
         {

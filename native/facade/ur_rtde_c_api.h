@@ -43,6 +43,7 @@ typedef enum {
 // ============================================================================
 typedef struct ur_rtde_control_handle ur_rtde_control_t;
 typedef struct ur_rtde_receive_handle ur_rtde_receive_t;
+typedef struct ur_rtde_robotiq_gripper ur_rtde_robotiq_gripper_t;
 
 // ============================================================================
 // Configuration Flags (matching RTDEControlInterface::Flags)
@@ -601,6 +602,151 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_speed_slider(
     double speed);
 
 UR_RTDE_API void ur_rtde_io_disconnect(ur_rtde_io_t* handle);
+
+// ============================================================================
+// Robotiq Gripper Interface (robotiq_gripper.h)
+// ============================================================================
+
+/** Create a Robotiq gripper handle (port defaults to 63352) */
+UR_RTDE_API ur_rtde_robotiq_gripper_t* ur_rtde_robotiq_gripper_create(
+    const char* hostname,
+    int port,
+    bool verbose);
+
+/** Destroy a Robotiq gripper handle */
+UR_RTDE_API void ur_rtde_robotiq_gripper_destroy(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Connect with timeout (ms) */
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_connect(
+    ur_rtde_robotiq_gripper_t* handle,
+    uint32_t timeout_ms);
+
+/** Disconnect the gripper */
+UR_RTDE_API void ur_rtde_robotiq_gripper_disconnect(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Check connection */
+UR_RTDE_API bool ur_rtde_robotiq_gripper_is_connected(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Activate the gripper (optionally auto-calibrate) */
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_activate(
+    ur_rtde_robotiq_gripper_t* handle,
+    bool auto_calibrate);
+
+/** Run auto calibration with optional speed (-1 uses default) */
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_auto_calibrate(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed);
+
+/** Check if gripper is active */
+UR_RTDE_API bool ur_rtde_robotiq_gripper_is_active(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Get open/closed/current position */
+UR_RTDE_API float ur_rtde_robotiq_gripper_get_open_position(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API float ur_rtde_robotiq_gripper_get_closed_position(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API float ur_rtde_robotiq_gripper_get_current_position(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API bool ur_rtde_robotiq_gripper_is_open(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API bool ur_rtde_robotiq_gripper_is_closed(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Move commands */
+UR_RTDE_API int ur_rtde_robotiq_gripper_move(
+    ur_rtde_robotiq_gripper_t* handle,
+    float position,
+    float speed,
+    float force,
+    int move_mode);
+
+UR_RTDE_API int ur_rtde_robotiq_gripper_open(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed,
+    float force,
+    int move_mode);
+
+UR_RTDE_API int ur_rtde_robotiq_gripper_close(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed,
+    float force,
+    int move_mode);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_emergency_release(
+    ur_rtde_robotiq_gripper_t* handle,
+    int direction,
+    int move_mode);
+
+/** Status and configuration */
+UR_RTDE_API int ur_rtde_robotiq_gripper_fault_status(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_set_unit(
+    ur_rtde_robotiq_gripper_t* handle,
+    int param,
+    int unit);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_set_position_range_mm(
+    ur_rtde_robotiq_gripper_t* handle,
+    int range_mm);
+
+UR_RTDE_API float ur_rtde_robotiq_gripper_set_speed(
+    ur_rtde_robotiq_gripper_t* handle,
+    float speed);
+
+UR_RTDE_API float ur_rtde_robotiq_gripper_set_force(
+    ur_rtde_robotiq_gripper_t* handle,
+    float force);
+
+UR_RTDE_API int ur_rtde_robotiq_gripper_object_detection_status(
+    ur_rtde_robotiq_gripper_t* handle);
+
+UR_RTDE_API int ur_rtde_robotiq_gripper_wait_for_motion_complete(
+    ur_rtde_robotiq_gripper_t* handle);
+
+/** Raw variable access */
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_set_var(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char* name,
+    int value);
+
+UR_RTDE_API int ur_rtde_robotiq_gripper_get_var(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char* name);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_set_vars(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char** names,
+    const int* values,
+    size_t count);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_get_vars(
+    ur_rtde_robotiq_gripper_t* handle,
+    const char** names,
+    size_t count,
+    int* values_out);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_get_native_position_range(
+    ur_rtde_robotiq_gripper_t* handle,
+    int* min_position,
+    int* max_position);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_robotiq_gripper_set_native_position_range(
+    ur_rtde_robotiq_gripper_t* handle,
+    int min_position,
+    int max_position);
+
+/** Last error string */
+UR_RTDE_API const char* ur_rtde_robotiq_gripper_get_last_error(
+    ur_rtde_robotiq_gripper_t* handle);
 
 #ifdef __cplusplus
 }

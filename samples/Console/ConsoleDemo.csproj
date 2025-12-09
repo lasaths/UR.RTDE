@@ -4,10 +4,27 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\UR.RTDE\UR.RTDE.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\src\UR.RTDE\runtimes\win-x64\native\**\*.*"
+          Link="runtimes\win-x64\native\%(RecursiveDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Copy native DLLs next to the console executable to satisfy DllImport search order -->
+  <Target Name="CopyNativeLibrariesToRoot" AfterTargets="Build">
+    <ItemGroup>
+      <NativeLib Include="..\..\src\UR.RTDE\runtimes\win-x64\native\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeLib)"
+          DestinationFiles="@(NativeLib->'$(OutputPath)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>

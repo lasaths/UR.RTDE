@@ -42,9 +42,9 @@ namespace UR.RTDE
         private const int ST_BUSY = 1;
         private const int ST_ERROR = -1;
 
-        public async Task InstallBridgeAsync(CancellationToken ct = default)
+        public Task InstallBridgeAsync(CancellationToken ct = default)
         {
-            if (_installed) return;
+            if (_installed) return Task.CompletedTask;
             // URScript bridge: reads input registers and calls Robotiq URCap functions; writes status back
             var script = @" 
 def robotiq_rtde_bridge():
@@ -110,6 +110,7 @@ robotiq_rtde_bridge()
 
             _control.SendCustomScript(script);
             _installed = true;
+            return Task.CompletedTask;
         }
 
         public async Task ActivateAsync(CancellationToken ct = default)

@@ -1,3 +1,7 @@
+// This file implements a P/Invoke wrapper around native C++ code (ur_rtde::RTDEControl).
+// All NativeMethods.* calls are intentional and required - this is the purpose of the wrapper.
+// These calls cannot be replaced with managed code as they interface with native C++ libraries.
+
 using System;
 using System.Runtime.InteropServices;
 using UR.RTDE.Native;
@@ -6,6 +10,9 @@ namespace UR.RTDE
 {
     /// <summary>
     /// RTDE Control Interface for commanding the robot
+    /// 
+    /// This class uses P/Invoke to call native C++ functions. All NativeMethods.* calls are intentional
+    /// and required for interfacing with the underlying ur_rtde C++ library.
     /// </summary>
     public sealed class RTDEControl : IDisposable
     {
