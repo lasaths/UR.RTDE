@@ -663,8 +663,16 @@ namespace UR.RTDE.Native
             int max_position);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern IntPtr ur_rtde_robotiq_gripper_get_last_error(IntPtr handle);
+        private static extern IntPtr ur_rtde_robotiq_gripper_get_last_error(IntPtr handle);
 
+        /// <summary>
+        /// Returns the last error string for the Robotiq gripper, marshaled to a managed string.
+        /// </summary>
+        internal static string? GetLastErrorString(IntPtr handle)
+        {
+            IntPtr ptr = ur_rtde_robotiq_gripper_get_last_error(handle);
+            return GetString(ptr);
+        }
         // ====================================================================
         // Helper Methods
         // ====================================================================
