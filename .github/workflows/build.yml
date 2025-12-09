@@ -20,7 +20,19 @@ jobs:
 
       - name: Install Boost
         run: |
-          $env:VCPKG_EXE = Join-Path "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}" "vcpkg.exe"
+          $vcpkgRoot = "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}"
+          if ([string]::IsNullOrWhiteSpace($vcpkgRoot)) {
+            $vcpkgRoot = $env:VCPKG_ROOT
+          }
+          if ([string]::IsNullOrWhiteSpace($vcpkgRoot)) {
+            Write-Error "vcpkg root path is not set. Check setup-vcpkg step outputs."
+            exit 1
+          }
+          $env:VCPKG_EXE = Join-Path $vcpkgRoot "vcpkg.exe"
+          if (-not (Test-Path $env:VCPKG_EXE)) {
+            Write-Error "vcpkg.exe not found at: $env:VCPKG_EXE"
+            exit 1
+          }
           & "$env:VCPKG_EXE" install boost-system:x64-windows boost-thread:x64-windows
 
       - name: Clone and build ur_rtde
