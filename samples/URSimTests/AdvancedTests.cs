@@ -238,7 +238,6 @@ namespace URSimTests
             gripper.SetForce(0.5f);
             gripper.Open(force: 0.5f, moveMode: RobotiqMoveMode.WaitFinished);
             gripper.Close(force: 0.5f, moveMode: RobotiqMoveMode.WaitFinished);
-            await Task.CompletedTask;
         }
 
         static async Task TestRobotiqScript()
