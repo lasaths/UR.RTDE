@@ -19,6 +19,8 @@ namespace UR.RTDE
         private IntPtr _handle;
         private bool _disposed;
         private readonly string _hostname;
+        private const int JointCount = 6;
+        private const int JacobianSize = 36;
 
         /// <summary>
         /// Create RTDE Control Interface
@@ -67,6 +69,15 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             CheckStatus(NativeMethods.ur_rtde_control_reconnect(_handle));
+        }
+
+        /// <summary>
+        /// Wait until the next RTDE state has been received.
+        /// </summary>
+        public bool WaitForNextState()
+        {
+            ThrowIfDisposed();
+            return NativeMethods.ur_rtde_control_wait_for_next_state(_handle);
         }
 
         /// <summary>
@@ -236,6 +247,97 @@ namespace UR.RTDE
             ThrowIfDisposed();
             ValidateArray(pose, 6, nameof(pose));
             return NativeMethods.ur_rtde_control_get_inverse_kinematics_has_solution(_handle, pose, (UIntPtr)6);
+        }
+
+        // ====================================================================
+        // Dynamics & Jacobians
+        // ====================================================================
+
+        /// <summary>
+        /// Command direct joint torques (PolyScope 5.23+). Call every control cycle.
+        /// </summary>
+        public void DirectTorque(double[] torque, bool frictionComp = true)
+        {
+            ThrowIfDisposed();
+            ValidateArray(torque, JointCount, nameof(torque));
+            CheckStatus(NativeMethods.ur_rtde_control_direct_torque(
+                _handle, torque, (UIntPtr)torque.Length, frictionComp));
+        }
+
+        /// <summary>
+        /// Get the joint-space mass matrix (6x6, row-major).
+        /// </summary>
+        public double[] GetMassMatrix(double[]? joints = null, bool includeRotorsInertia = false)
+        {
+            ThrowIfDisposed();
+            ValidateOptionalArray(joints, JointCount, nameof(joints));
+            var matrix = new double[JacobianSize];
+            var qSize = joints is null ? UIntPtr.Zero : (UIntPtr)joints.Length;
+            CheckStatus(NativeMethods.ur_rtde_control_get_mass_matrix(
+                _handle, joints, qSize, includeRotorsInertia, matrix, (UIntPtr)matrix.Length));
+            return matrix;
+        }
+
+        /// <summary>
+        /// Get Coriolis and centrifugal torques (6 values).
+        /// </summary>
+        public double[] GetCoriolisAndCentrifugalTorques(double[]? joints = null, double[]? jointVelocities = null)
+        {
+            ThrowIfDisposed();
+            ValidateOptionalArray(joints, JointCount, nameof(joints));
+            ValidateOptionalArray(jointVelocities, JointCount, nameof(jointVelocities));
+            var torques = new double[JointCount];
+            var qSize = joints is null ? UIntPtr.Zero : (UIntPtr)joints.Length;
+            var qdSize = jointVelocities is null ? UIntPtr.Zero : (UIntPtr)jointVelocities.Length;
+            CheckStatus(NativeMethods.ur_rtde_control_get_coriolis_and_centrifugal_torques(
+                _handle, joints, qSize, jointVelocities, qdSize, torques, (UIntPtr)torques.Length));
+            return torques;
+        }
+
+        /// <summary>
+        /// Get target joint accelerations derived from encoders.
+        /// </summary>
+        public double[] GetTargetJointAccelerations()
+        {
+            ThrowIfDisposed();
+            var accelerations = new double[JointCount];
+            CheckStatus(NativeMethods.ur_rtde_control_get_target_joint_accelerations(
+                _handle, accelerations, (UIntPtr)accelerations.Length));
+            return accelerations;
+        }
+
+        /// <summary>
+        /// Get Jacobian matrix (6x6, row-major). Uses current pose if inputs are null/empty.
+        /// </summary>
+        public double[] GetJacobian(double[]? pos = null, double[]? tcp = null)
+        {
+            ThrowIfDisposed();
+            ValidateOptionalArray(pos, JointCount, nameof(pos));
+            ValidateOptionalArray(tcp, JointCount, nameof(tcp));
+            var jacobian = new double[JacobianSize];
+            var posSize = pos is null ? UIntPtr.Zero : (UIntPtr)pos.Length;
+            var tcpSize = tcp is null ? UIntPtr.Zero : (UIntPtr)tcp.Length;
+            CheckStatus(NativeMethods.ur_rtde_control_get_jacobian(
+                _handle, pos, posSize, tcp, tcpSize, jacobian, (UIntPtr)jacobian.Length));
+            return jacobian;
+        }
+
+        /// <summary>
+        /// Get time-derivative of Jacobian (6x6, row-major). Uses current state if inputs are null/empty.
+        /// </summary>
+        public double[] GetJacobianTimeDerivative(double[]? pos = null, double[]? vel = null, double[]? tcp = null)
+        {
+            ThrowIfDisposed();
+            ValidateOptionalArray(pos, JointCount, nameof(pos));
+            ValidateOptionalArray(vel, JointCount, nameof(vel));
+            ValidateOptionalArray(tcp, JointCount, nameof(tcp));
+            var jacobian = new double[JacobianSize];
+            var posSize = pos is null ? UIntPtr.Zero : (UIntPtr)pos.Length;
+            var velSize = vel is null ? UIntPtr.Zero : (UIntPtr)vel.Length;
+            var tcpSize = tcp is null ? UIntPtr.Zero : (UIntPtr)tcp.Length;
+            CheckStatus(NativeMethods.ur_rtde_control_get_jacobian_time_derivative(
+                _handle, pos, posSize, vel, velSize, tcp, tcpSize, jacobian, (UIntPtr)jacobian.Length));
+            return jacobian;
         }
 
         // ====================================================================
@@ -443,26 +545,8 @@ namespace UR.RTDE
         }
 
         // ====================================================================
-        // RTDE Registers & Custom Script
+        // Custom Script
         // ====================================================================
-
-        public void SetInputIntRegister(ushort reg, int value)
-        {
-            ThrowIfDisposed();
-            CheckStatus(NativeMethods.ur_rtde_control_set_input_int_register(_handle, reg, value));
-        }
-
-        public void SetInputDoubleRegister(ushort reg, double value)
-        {
-            ThrowIfDisposed();
-            CheckStatus(NativeMethods.ur_rtde_control_set_input_double_register(_handle, reg, value));
-        }
-
-        public void SetInputBitRegister(ushort reg, bool value)
-        {
-            ThrowIfDisposed();
-            CheckStatus(NativeMethods.ur_rtde_control_set_input_bit_register(_handle, reg, value));
-        }
 
         public void SendCustomScript(string script)
         {
@@ -497,6 +581,14 @@ namespace UR.RTDE
         {
             if (array == null)
                 throw new ArgumentNullException(paramName);
+            if (array.Length != expectedLength)
+                throw new ArgumentException($"Expected array of length {expectedLength}, got {array.Length}", paramName);
+        }
+
+        private static void ValidateOptionalArray(double[]? array, int expectedLength, string paramName)
+        {
+            if (array == null)
+                return;
             if (array.Length != expectedLength)
                 throw new ArgumentException($"Expected array of length {expectedLength}, got {array.Length}", paramName);
         }

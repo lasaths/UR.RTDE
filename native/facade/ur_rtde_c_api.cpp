@@ -104,6 +104,19 @@ bool ur_rtde_control_is_connected(ur_rtde_control_t* handle) {
   }
 }
 
+bool ur_rtde_control_wait_for_next_state(ur_rtde_control_t* handle) {
+  if (!handle) return false;
+  try {
+    return handle->control->waitForNextState();
+  } catch (const std::exception& e) {
+    handle->last_error = e.what();
+    return false;
+  } catch (...) {
+    handle->last_error = "Unknown exception";
+    return false;
+  }
+}
+
 ur_rtde_status_t ur_rtde_control_disconnect(ur_rtde_control_t* handle) {
   CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
   TRY_CATCH_BLOCK(
@@ -504,6 +517,205 @@ bool ur_rtde_control_get_inverse_kinematics_has_solution(
 }
 
 // ============================================================================
+// RTDEControl - Dynamics & Jacobians
+// ============================================================================
+
+ur_rtde_status_t ur_rtde_control_direct_torque(
+    ur_rtde_control_t* handle,
+    const double* torque,
+    size_t torque_size,
+    bool friction_comp)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!torque || torque_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    TRY_CATCH_BLOCK(
+        std::vector<double> torque_vec(torque, torque + torque_size);
+        bool success = handle->control->directTorque(torque_vec, friction_comp);
+        return success ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+ur_rtde_status_t ur_rtde_control_get_mass_matrix(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    bool include_rotors_inertia,
+    double* matrix_out,
+    size_t matrix_size)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!matrix_out) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((q_size != 0 && q_size != 6) || (q == nullptr && q_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    std::vector<double> q_vec;
+    if (q_size > 0) {
+        q_vec.assign(q, q + q_size);
+    }
+
+    TRY_CATCH_BLOCK(
+        auto matrix = handle->control->getMassMatrix(q_vec, include_rotors_inertia);
+        if (matrix_size < matrix.size()) {
+            return UR_RTDE_ERROR_INVALID_PARAM;
+        }
+        std::copy(matrix.begin(), matrix.end(), matrix_out);
+        return UR_RTDE_OK;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+ur_rtde_status_t ur_rtde_control_get_coriolis_and_centrifugal_torques(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    const double* qd,
+    size_t qd_size,
+    double* torques_out,
+    size_t torques_size)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!torques_out || torques_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((q_size != 0 && q_size != 6) || (q == nullptr && q_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((qd_size != 0 && qd_size != 6) || (qd == nullptr && qd_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    std::vector<double> q_vec;
+    std::vector<double> qd_vec;
+    if (q_size > 0) {
+        q_vec.assign(q, q + q_size);
+    }
+    if (qd_size > 0) {
+        qd_vec.assign(qd, qd + qd_size);
+    }
+
+    TRY_CATCH_BLOCK(
+        auto torques = handle->control->getCoriolisAndCentrifugalTorques(q_vec, qd_vec);
+        if (torques.size() != torques_size) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(torques.begin(), torques.end(), torques_out);
+        return UR_RTDE_OK;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+ur_rtde_status_t ur_rtde_control_get_target_joint_accelerations(
+    ur_rtde_control_t* handle,
+    double* accelerations_out,
+    size_t accelerations_size)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!accelerations_out || accelerations_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    TRY_CATCH_BLOCK(
+        auto acc = handle->control->getTargetJointAccelerations();
+        if (acc.size() != accelerations_size) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(acc.begin(), acc.end(), accelerations_out);
+        return UR_RTDE_OK;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+ur_rtde_status_t ur_rtde_control_get_jacobian(
+    ur_rtde_control_t* handle,
+    const double* pos,
+    size_t pos_size,
+    const double* tcp,
+    size_t tcp_size,
+    double* jacobian_out,
+    size_t jacobian_size)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!jacobian_out) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((pos_size != 0 && pos_size != 6) || (pos == nullptr && pos_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((tcp_size != 0 && tcp_size != 6) || (tcp == nullptr && tcp_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    std::vector<double> pos_vec;
+    std::vector<double> tcp_vec;
+    if (pos_size > 0) {
+        pos_vec.assign(pos, pos + pos_size);
+    }
+    if (tcp_size > 0) {
+        tcp_vec.assign(tcp, tcp + tcp_size);
+    }
+
+    TRY_CATCH_BLOCK(
+        auto jacobian = handle->control->getJacobian(pos_vec, tcp_vec);
+        if (jacobian_size < jacobian.size()) {
+            return UR_RTDE_ERROR_INVALID_PARAM;
+        }
+        std::copy(jacobian.begin(), jacobian.end(), jacobian_out);
+        return UR_RTDE_OK;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+ur_rtde_status_t ur_rtde_control_get_jacobian_time_derivative(
+    ur_rtde_control_t* handle,
+    const double* pos,
+    size_t pos_size,
+    const double* vel,
+    size_t vel_size,
+    const double* tcp,
+    size_t tcp_size,
+    double* jacobian_out,
+    size_t jacobian_size)
+{
+    CHECK_HANDLE(handle, UR_RTDE_ERROR_INVALID_HANDLE);
+    if (!jacobian_out) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((pos_size != 0 && pos_size != 6) || (pos == nullptr && pos_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((vel_size != 0 && vel_size != 6) || (vel == nullptr && vel_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+    if ((tcp_size != 0 && tcp_size != 6) || (tcp == nullptr && tcp_size > 0)) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    std::vector<double> pos_vec;
+    std::vector<double> vel_vec;
+    std::vector<double> tcp_vec;
+    if (pos_size > 0) {
+        pos_vec.assign(pos, pos + pos_size);
+    }
+    if (vel_size > 0) {
+        vel_vec.assign(vel, vel + vel_size);
+    }
+    if (tcp_size > 0) {
+        tcp_vec.assign(tcp, tcp + tcp_size);
+    }
+
+    TRY_CATCH_BLOCK(
+        auto jacobian = handle->control->getJacobianTimeDerivative(pos_vec, vel_vec, tcp_vec);
+        if (jacobian_size < jacobian.size()) {
+            return UR_RTDE_ERROR_INVALID_PARAM;
+        }
+        std::copy(jacobian.begin(), jacobian.end(), jacobian_out);
+        return UR_RTDE_OK;
+    , handle, UR_RTDE_ERROR_COMMAND_FAILED);
+}
+
+// ============================================================================
 // RTDEControl - Additional Movement
 // ============================================================================
 
@@ -594,55 +806,6 @@ uint32_t ur_rtde_control_get_robot_status(ur_rtde_control_t* handle)
         return handle->control->getRobotStatus();
     } catch (...) {
         return 0;
-    }
-}
-
-// ============================================================================
-// RTDEControl - RTDE Register & Custom Script
-// ============================================================================
-
-ur_rtde_status_t ur_rtde_control_set_input_int_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    int32_t value)
-{
-    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
-    try {
-        bool result = handle->control->setInputIntRegister(reg, value);
-        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
-    } catch (const std::exception& e) {
-        handle->last_error = e.what();
-        return UR_RTDE_ERROR_COMMAND_FAILED;
-    }
-}
-
-ur_rtde_status_t ur_rtde_control_set_input_double_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    double value)
-{
-    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
-    try {
-        bool result = handle->control->setInputDoubleRegister(reg, value);
-        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
-    } catch (const std::exception& e) {
-        handle->last_error = e.what();
-        return UR_RTDE_ERROR_COMMAND_FAILED;
-    }
-}
-
-ur_rtde_status_t ur_rtde_control_set_input_bit_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    bool value)
-{
-    if (!handle) return UR_RTDE_ERROR_INVALID_HANDLE;
-    try {
-        bool result = handle->control->setInputBitRegister(reg, value);
-        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
-    } catch (const std::exception& e) {
-        handle->last_error = e.what();
-        return UR_RTDE_ERROR_COMMAND_FAILED;
     }
 }
 
@@ -775,6 +938,28 @@ ur_rtde_status_t ur_rtde_receive_get_actual_current(
     }
 }
 
+ur_rtde_status_t ur_rtde_receive_get_actual_current_as_torque(
+    ur_rtde_receive_t* handle,
+    double* torque_out,
+    size_t torque_size)
+{
+    if (!handle || !torque_out || torque_size != 6) {
+        return UR_RTDE_ERROR_INVALID_PARAM;
+    }
+
+    try {
+        auto torques = handle->receive->getActualCurrentAsTorque();
+        if (torques.size() != torque_size) {
+            return UR_RTDE_ERROR_COMMAND_FAILED;
+        }
+        std::copy(torques.begin(), torques.end(), torque_out);
+        return UR_RTDE_OK;
+    } catch (const std::exception& e) {
+        std::cerr << "getActualCurrentAsTorque: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
 // ============================================================================
 // RTDEReceive - Safety Status
 // ============================================================================
@@ -844,18 +1029,6 @@ double ur_rtde_receive_get_output_double_register(
         return handle->receive->getOutputDoubleRegister(reg);
     } catch (...) {
         return 0.0;
-    }
-}
-
-bool ur_rtde_receive_get_output_bit_register(
-    ur_rtde_receive_t* handle,
-    uint16_t reg)
-{
-    if (!handle) return false;
-    try {
-        return handle->receive->getOutputBitRegister(reg);
-    } catch (...) {
-        return false;
     }
 }
 
@@ -1233,6 +1406,42 @@ ur_rtde_status_t ur_rtde_io_set_speed_slider(
         return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
     } catch (const std::exception& e) {
         std::cerr << "setSpeedSlider: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_input_int_register(
+    ur_rtde_io_t* handle,
+    uint16_t reg,
+    int32_t value)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->io->setInputIntRegister(static_cast<int>(reg), value);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setInputIntRegister: " << e.what() << std::endl;
+        return UR_RTDE_ERROR_COMMAND_FAILED;
+    }
+}
+
+ur_rtde_status_t ur_rtde_io_set_input_double_register(
+    ur_rtde_io_t* handle,
+    uint16_t reg,
+    double value)
+{
+    if (!handle) {
+        return UR_RTDE_ERROR_INVALID_HANDLE;
+    }
+
+    try {
+        bool result = handle->io->setInputDoubleRegister(static_cast<int>(reg), value);
+        return result ? UR_RTDE_OK : UR_RTDE_ERROR_COMMAND_FAILED;
+    } catch (const std::exception& e) {
+        std::cerr << "setInputDoubleRegister: " << e.what() << std::endl;
         return UR_RTDE_ERROR_COMMAND_FAILED;
     }
 }

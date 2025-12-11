@@ -259,7 +259,8 @@ namespace URSimTests
         {
             using var ctrl = new RTDEControl(ROBOT_IP);
             using var recv = new RTDEReceive(ROBOT_IP);
-            var gripper = new RobotiqGripperRtde(ctrl, recv);
+            using var io = new RTDEIO(ROBOT_IP);
+            var gripper = new RobotiqGripperRtde(ctrl, recv, io);
 
             // Install the bridge and do a quick sequence
             await gripper.InstallBridgeAsync();

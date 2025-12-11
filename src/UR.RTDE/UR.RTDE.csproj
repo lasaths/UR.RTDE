@@ -10,7 +10,7 @@
     
     <!-- Package metadata -->
     <PackageId>UR.RTDE</PackageId>
-    <Version>1.1.1.0</Version>
+    <Version>1.2.0.0</Version>
     <Authors>Lasath Siriwardena</Authors>
     <Company>ICD University of Stuttgart</Company>
     <Description>C# wrapper for Universal Robots RTDE interface using native P/Invoke. Works with Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8) on Windows and macOS. Zero dependencies - all native libraries included.</Description>
@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/lasaths/UR.RTDE</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.1.1.0: Windows-only CI pipeline with corrected vcpkg/toolchain wiring, clarified native P/Invoke intent in wrappers, standard dispose pattern for RobotiqNative, and refreshed documentation. Built on ur_rtde v1.6.0. URSim e-Series 5.23.0 validated.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.2.0.0: Upstream ur_rtde bumped to v1.6.2; native facade rebuilt with IO input-register setters and removal of obsolete control-side register APIs; Robotiq RTDE path now uses IO registers (constructor requires RTDEIO); runtimes include required Boost thread DLL; URSim validation passed (22/22 core + 6/6 advanced).</PackageReleaseNotes>
     
     <!-- Enable native library packaging -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>

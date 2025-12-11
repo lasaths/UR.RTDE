@@ -14,12 +14,14 @@ namespace UR.RTDE
     {
         private readonly RTDEControl _control;
         private readonly RTDEReceive _receive;
+        private readonly RTDEIO _io;
         private bool _installed;
 
-        public RobotiqGripperRtde(RTDEControl control, RTDEReceive receive)
+        public RobotiqGripperRtde(RTDEControl control, RTDEReceive receive, RTDEIO io)
         {
             _control = control ?? throw new ArgumentNullException(nameof(control));
             _receive = receive ?? throw new ArgumentNullException(nameof(receive));
+            _io = io ?? throw new ArgumentNullException(nameof(io));
         }
 
         // Register map (example; adjust if you already use upper-range registers)
@@ -137,7 +139,7 @@ robotiq_rtde_bridge()
         public async Task MoveAsync(byte position, CancellationToken ct = default)
         {
             await InstallBridgeAsync(ct).ConfigureAwait(false);
-            _control.SetInputIntRegister(REG_VAL, position);
+            _io.SetInputIntRegister(REG_VAL, position);
             IssueCommand(CMD_MOVE);
             await WaitIdleAsync(ct).ConfigureAwait(false);
         }
@@ -145,20 +147,20 @@ robotiq_rtde_bridge()
         public async Task SetSpeedAsync(byte speed, CancellationToken ct = default)
         {
             await InstallBridgeAsync(ct).ConfigureAwait(false);
-            _control.SetInputIntRegister(REG_VAL, speed);
+            _io.SetInputIntRegister(REG_VAL, speed);
             IssueCommand(CMD_SET_SPEED);
         }
 
         public async Task SetForceAsync(byte force, CancellationToken ct = default)
         {
             await InstallBridgeAsync(ct).ConfigureAwait(false);
-            _control.SetInputIntRegister(REG_VAL, force);
+            _io.SetInputIntRegister(REG_VAL, force);
             IssueCommand(CMD_SET_FORCE);
         }
 
         private void IssueCommand(int cmd)
         {
-            _control.SetInputIntRegister(REG_CMD, cmd);
+            _io.SetInputIntRegister(REG_CMD, cmd);
         }
 
         private async Task WaitIdleAsync(CancellationToken ct)

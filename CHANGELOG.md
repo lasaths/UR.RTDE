@@ -19,6 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0.0] - 2025-12-11
+
+### Changed
+- Upstream ur_rtde bumped to v1.6.2; native libraries rebuilt with VS 2026 toolset.
+- Facade/API: added IO-based `set_input_{int,double}_register` and removed obsolete control-side register setters and output bit register entrypoint.
+- Robotiq RTDE path now uses IO register setters; constructor updated to require `RTDEIO`.
+- Runtimes now include `boost_thread-vc145-mt-x64-1_89.dll` alongside `rtde.dll` and `ur_rtde_c_api.dll`.
+
+### Fixed/Notes
+- URSim integration suite passing (22 core + 6 advanced) against URSim e-Series 5.23.0 @ localhost.
+
+---
+
 ## [1.1.1.0] - 2025-09-12
 
 ### Changed
