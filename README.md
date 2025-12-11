@@ -6,7 +6,7 @@
 [![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
 [![NuGet](https://img.shields.io/nuget/v/UR.RTDE.svg)](https://www.nuget.org/packages/UR.RTDE)
 
-Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) v1.6.0.
+Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) v1.6.2.
 
 ## AI-Built & Liability Disclaimer
 
@@ -19,7 +19,7 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 
 ## Target Features
 
-### Core Capabilities (v1.1.1.0)
+### Core Capabilities (v1.2.0.0)
 - Native C++ P/Invoke; sustained high-frequency streaming.
 - No external dependencies; native DLLs included in NuGet.
 - Supports Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8).
@@ -98,9 +98,9 @@ Console.WriteLine($"Joint 0: {q[0]:F4} rad");
 Build is verified; see `BUILD_SUCCESS.md` for details.
 
 ### Prerequisites
-- Visual Studio 2022 with Desktop C++ workload
+- Visual Studio 2026 (v145 toolset) with Desktop C++ workload
 - vcpkg
-- CMake (bundled with VS 2022)
+- CMake (bundled with VS 2026)
 - ~7 GB disk for Boost; ~70 minutes initial build
 
 ### Quick Build
@@ -133,7 +133,7 @@ dotnet build src\UR.RTDE -c Release
 dotnet pack src\UR.RTDE -c Release -o nupkgs
 ```
 
-ur_rtde v1.6.0 source includes Boost 1.89.0 compatibility patches; see `BUILD_SUCCESS.md` and `BUILD_INSTRUCTIONS.md`.
+ur_rtde v1.6.2 source includes Boost 1.89.0 compatibility patches; see `BUILD_SUCCESS.md` and `BUILD_INSTRUCTIONS.md`.
 
 ---
 
@@ -174,7 +174,7 @@ ur_rtde v1.6.0 source includes Boost 1.89.0 compatibility patches; see `BUILD_SU
 
 ## Release
 
-We use SemVer. This version is 1.1.1.0 (NuGet normalized as 1.1.1).
+We use SemVer. This version is 1.2.0.0 (NuGet normalized as 1.2.0).
 
 Steps to publish a GitHub Release (manual):
 
@@ -183,18 +183,18 @@ Steps to publish a GitHub Release (manual):
 git pull origin main
 
 # Tag the release (match csproj version)
-git tag v1.1.1.0 -m "UR.RTDE 1.1.1.0"
-git push origin v1.1.1.0
+git tag v1.2.0.0 -m "UR.RTDE 1.2.0.0"
+git push origin v1.2.0.0
 
-# Create a GitHub Release for tag v1.1.1.0 and upload the nupkg
+# Create a GitHub Release for tag v1.2.0.0 and upload the nupkg
 ```
 
 NuGet publish (manual):
 
 ```powershell
 dotnet pack src/UR.RTDE -c Release -o nupkgs
-# NuGet normalizes trailing .0 segments, so the file is '1.1.1'
-dotnet nuget push nupkgs/UR.RTDE.1.1.1.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+# NuGet normalizes trailing .0 segments, so the file is '1.2.0'
+dotnet nuget push nupkgs/UR.RTDE.1.2.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
 ```
 
 ---

@@ -224,6 +224,17 @@ namespace UR.RTDE
             return current;
         }
 
+        /// <summary>
+        /// Get actual joint currents converted to torques
+        /// </summary>
+        public double[] GetActualCurrentAsTorque()
+        {
+            ThrowIfDisposed();
+            var torque = new double[6];
+            CheckStatus(NativeMethods.ur_rtde_receive_get_actual_current_as_torque(_handle, torque, (UIntPtr)torque.Length));
+            return torque;
+        }
+
         // ====================================================================
         // Safety Status
         // ====================================================================
@@ -284,12 +295,6 @@ namespace UR.RTDE
         {
             ThrowIfDisposed();
             return NativeMethods.ur_rtde_receive_get_output_double_register(_handle, reg);
-        }
-
-        public bool GetOutputBitRegister(ushort reg)
-        {
-            ThrowIfDisposed();
-            return NativeMethods.ur_rtde_receive_get_output_bit_register(_handle, reg);
         }
 
         // ====================================================================

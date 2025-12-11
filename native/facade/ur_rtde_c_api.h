@@ -90,6 +90,12 @@ UR_RTDE_API void ur_rtde_control_destroy(ur_rtde_control_t* handle);
 UR_RTDE_API bool ur_rtde_control_is_connected(ur_rtde_control_t* handle);
 
 /**
+ * Wait until the next RTDE state has been received.
+ * @return true if a new state arrived, false on error/timeout
+ */
+UR_RTDE_API bool ur_rtde_control_wait_for_next_state(ur_rtde_control_t* handle);
+
+/**
  * Disconnect from robot
  */
 UR_RTDE_API ur_rtde_status_t ur_rtde_control_disconnect(ur_rtde_control_t* handle);
@@ -377,6 +383,58 @@ UR_RTDE_API bool ur_rtde_control_get_inverse_kinematics_has_solution(
     size_t x_size);
 
 // ============================================================================
+// RTDEControl - Dynamics & Jacobians
+// ============================================================================
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_direct_torque(
+    ur_rtde_control_t* handle,
+    const double* torque,
+    size_t torque_size,
+    bool friction_comp);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_mass_matrix(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    bool include_rotors_inertia,
+    double* matrix_out,
+    size_t matrix_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_coriolis_and_centrifugal_torques(
+    ur_rtde_control_t* handle,
+    const double* q,
+    size_t q_size,
+    const double* qd,
+    size_t qd_size,
+    double* torques_out,
+    size_t torques_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_target_joint_accelerations(
+    ur_rtde_control_t* handle,
+    double* accelerations_out,
+    size_t accelerations_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_jacobian(
+    ur_rtde_control_t* handle,
+    const double* pos,
+    size_t pos_size,
+    const double* tcp,
+    size_t tcp_size,
+    double* jacobian_out,
+    size_t jacobian_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_control_get_jacobian_time_derivative(
+    ur_rtde_control_t* handle,
+    const double* pos,
+    size_t pos_size,
+    const double* vel,
+    size_t vel_size,
+    const double* tcp,
+    size_t tcp_size,
+    double* jacobian_out,
+    size_t jacobian_size);
+
+// ============================================================================
 // RTDEControl - Additional Movement
 // ============================================================================
 
@@ -434,6 +492,11 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_actual_current(
     ur_rtde_receive_t* handle,
     double* current_out,
     size_t current_size);
+
+UR_RTDE_API ur_rtde_status_t ur_rtde_receive_get_actual_current_as_torque(
+    ur_rtde_receive_t* handle,
+    double* torque_out,
+    size_t torque_size);
 
 // ============================================================================
 // RTDEReceive - Safety Status
@@ -518,26 +581,8 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_control_force_mode_set_gain_scaling(
     double scaling);
 
 // ============================================================================
-// RTDEControl - RTDE Register & Custom Script
+// RTDEControl - Custom Script
 // ============================================================================
-
-/** Set RTDE input integer register */
-UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_int_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    int32_t value);
-
-/** Set RTDE input double register */
-UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_double_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    double value);
-
-/** Set RTDE input bit register */
-UR_RTDE_API ur_rtde_status_t ur_rtde_control_set_input_bit_register(
-    ur_rtde_control_t* handle,
-    uint16_t reg,
-    bool value);
 
 /** Send custom URScript to the controller */
 UR_RTDE_API ur_rtde_status_t ur_rtde_control_send_custom_script(
@@ -555,11 +600,6 @@ UR_RTDE_API int32_t ur_rtde_receive_get_output_int_register(
 
 /** Get RTDE output double register */
 UR_RTDE_API double ur_rtde_receive_get_output_double_register(
-    ur_rtde_receive_t* handle,
-    uint16_t reg);
-
-/** Get RTDE output bit register */
-UR_RTDE_API bool ur_rtde_receive_get_output_bit_register(
     ur_rtde_receive_t* handle,
     uint16_t reg);
 
@@ -600,6 +640,18 @@ UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_analog_output_current(
 UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_speed_slider(
     ur_rtde_io_t* handle,
     double speed);
+
+/** Set RTDE input integer register */
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_input_int_register(
+    ur_rtde_io_t* handle,
+    uint16_t reg,
+    int32_t value);
+
+/** Set RTDE input double register */
+UR_RTDE_API ur_rtde_status_t ur_rtde_io_set_input_double_register(
+    ur_rtde_io_t* handle,
+    uint16_t reg,
+    double value);
 
 UR_RTDE_API void ur_rtde_io_disconnect(ur_rtde_io_t* handle);
 

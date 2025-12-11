@@ -174,7 +174,8 @@ await g.CloseAsync();
 ```csharp
 using var ctrl = new UR.RTDE.RTDEControl("192.168.1.100");
 using var recv = new UR.RTDE.RTDEReceive("192.168.1.100");
-var g = new UR.RTDE.RobotiqGripperRtde(ctrl, recv);
+using var io = new UR.RTDE.RTDEIO("192.168.1.100");
+var g = new UR.RTDE.RobotiqGripperRtde(ctrl, recv, io);
 await g.InstallBridgeAsync();
 await g.CloseAsync();
 ```

@@ -86,6 +86,10 @@ namespace UR.RTDE.Native
         internal static extern bool ur_rtde_control_is_connected(IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.I1)]
+        internal static extern bool ur_rtde_control_wait_for_next_state(IntPtr handle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Status ur_rtde_control_disconnect(IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
@@ -249,6 +253,64 @@ namespace UR.RTDE.Native
             UIntPtr x_size);
 
         // ====================================================================
+        // RTDEControl - Dynamics & Jacobians
+        // ====================================================================
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_direct_torque(
+            IntPtr handle,
+            [In] double[] torque,
+            UIntPtr torque_size,
+            [MarshalAs(UnmanagedType.I1)] bool friction_comp);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_mass_matrix(
+            IntPtr handle,
+            [In] double[]? q,
+            UIntPtr q_size,
+            [MarshalAs(UnmanagedType.I1)] bool include_rotors_inertia,
+            [Out] double[] matrix_out,
+            UIntPtr matrix_size);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_coriolis_and_centrifugal_torques(
+            IntPtr handle,
+            [In] double[]? q,
+            UIntPtr q_size,
+            [In] double[]? qd,
+            UIntPtr qd_size,
+            [Out] double[] torques_out,
+            UIntPtr torques_size);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_target_joint_accelerations(
+            IntPtr handle,
+            [Out] double[] accelerations_out,
+            UIntPtr accelerations_size);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_jacobian(
+            IntPtr handle,
+            [In] double[]? pos,
+            UIntPtr pos_size,
+            [In] double[]? tcp,
+            UIntPtr tcp_size,
+            [Out] double[] jacobian_out,
+            UIntPtr jacobian_size);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_control_get_jacobian_time_derivative(
+            IntPtr handle,
+            [In] double[]? pos,
+            UIntPtr pos_size,
+            [In] double[]? vel,
+            UIntPtr vel_size,
+            [In] double[]? tcp,
+            UIntPtr tcp_size,
+            [Out] double[] jacobian_out,
+            UIntPtr jacobian_size);
+
+        // ====================================================================
         // RTDEControl - Advanced Movement
         // ====================================================================
 
@@ -319,6 +381,12 @@ namespace UR.RTDE.Native
             [Out] double[] current_out,
             UIntPtr current_size);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_receive_get_actual_current_as_torque(
+            IntPtr handle,
+            [Out] double[] torque_out,
+            UIntPtr torque_size);
+
         // ====================================================================
         // RTDEReceive - Safety Status
         // ====================================================================
@@ -348,12 +416,6 @@ namespace UR.RTDE.Native
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern double ur_rtde_receive_get_output_double_register(
-            IntPtr handle,
-            ushort reg);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.I1)]
-        internal static extern bool ur_rtde_receive_get_output_bit_register(
             IntPtr handle,
             ushort reg);
 
@@ -435,26 +497,8 @@ namespace UR.RTDE.Native
             double scaling);
 
         // ====================================================================
-        // RTDEControl - RTDE Registers & Custom Script
+        // RTDEControl - Custom Script
         // ====================================================================
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Status ur_rtde_control_set_input_int_register(
-            IntPtr handle,
-            ushort reg,
-            int value);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Status ur_rtde_control_set_input_double_register(
-            IntPtr handle,
-            ushort reg,
-            double value);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Status ur_rtde_control_set_input_bit_register(
-            IntPtr handle,
-            ushort reg,
-            [MarshalAs(UnmanagedType.I1)] bool value);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         internal static extern Status ur_rtde_control_send_custom_script(
@@ -505,6 +549,18 @@ namespace UR.RTDE.Native
         internal static extern Status ur_rtde_io_set_speed_slider(
             IntPtr handle,
             double speed);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_input_int_register(
+            IntPtr handle,
+            ushort reg,
+            int value);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Status ur_rtde_io_set_input_double_register(
+            IntPtr handle,
+            ushort reg,
+            double value);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void ur_rtde_io_disconnect(IntPtr handle);

@@ -110,6 +110,34 @@ namespace UR.RTDE
         }
 
         /// <summary>
+        /// Write an integer to an RTDE input register.
+        /// </summary>
+        /// <param name="reg">Register index (0-47; ranges are validated by firmware)</param>
+        /// <param name="value">Integer value to write</param>
+        public void SetInputIntRegister(int reg, int value)
+        {
+            ThrowIfDisposed();
+            if (reg < 0 || reg > ushort.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(reg), "Register index must be non-negative");
+
+            CheckStatus(NativeMethods.ur_rtde_io_set_input_int_register(_handle, (ushort)reg, value));
+        }
+
+        /// <summary>
+        /// Write a double to an RTDE input register.
+        /// </summary>
+        /// <param name="reg">Register index (0-47; ranges are validated by firmware)</param>
+        /// <param name="value">Double value to write</param>
+        public void SetInputDoubleRegister(int reg, double value)
+        {
+            ThrowIfDisposed();
+            if (reg < 0 || reg > ushort.MaxValue)
+                throw new ArgumentOutOfRangeException(nameof(reg), "Register index must be non-negative");
+
+            CheckStatus(NativeMethods.ur_rtde_io_set_input_double_register(_handle, (ushort)reg, value));
+        }
+
+        /// <summary>
         /// Set speed slider override (runtime speed control)
         /// </summary>
         /// <param name="speed">Speed fraction (0.0 to 1.0, where 1.0 = 100% speed)</param>
