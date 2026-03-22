@@ -73,14 +73,75 @@ Native DLLs copy automatically to the output folder.
 
 ---
 
+## URSim via Docker
+
+This project is validated against **URSim e-Series running in Docker**. For local development and testing, this is the recommended setup.
+
+### 1. Install Docker Desktop
+
+Install Docker Desktop for Windows or macOS and make sure `docker` works from your terminal.
+
+### 2. Pull the official URSim image
+
+```powershell
+docker pull universalrobots/ursim_e-series
+```
+
+### 3. Start URSim and publish the required ports
+
+```powershell
+docker volume create ursim-programs
+
+docker run --rm -it `
+  --name ursim `
+  -p 127.0.0.1:5900:5900 `
+  -p 127.0.0.1:6080:6080 `
+  -p 127.0.0.1:29999:29999 `
+  -p 127.0.0.1:30002:30002 `
+  -p 127.0.0.1:30004:30004 `
+  --mount source=ursim-programs,target=/ursim/programs `
+  universalrobots/ursim_e-series
+```
+
+Published ports:
+- `6080`: browser-based VNC UI
+- `5900`: VNC client
+- `29999`: dashboard server
+- `30002`: URScript client
+- `30004`: RTDE, used by `UR.RTDE`
+
+### 4. Open the simulator UI
+
+Open `http://localhost:6080/vnc.html` in your browser.
+
+Inside URSim:
+- Power on the robot
+- Release brakes
+- Clear any startup or safety dialogs before running tests or motion commands
+
+### 5. Connect from `UR.RTDE`
+
+Use `localhost` as the host name when URSim is running with the port mapping above.
+
+```powershell
+$env:ROBOT_IP = 'localhost'
+Test-NetConnection localhost -Port 30004
+```
+
+Notes:
+- For a real robot, replace `localhost` with the robot IP on your network.
+- If you need to persist URCaps or install Robotiq URCap inside URSim, mount additional Docker volumes as needed.
+
+---
+
 ## Quick Start
 
 ```csharp
 using UR.RTDE;
 
-// Connect
-using var control = new RTDEControl("192.168.1.100");
-using var receive = new RTDEReceive("192.168.1.100");
+// Use "localhost" for URSim in Docker, or the robot IP for hardware.
+using var control = new RTDEControl("localhost");
+using var receive = new RTDEReceive("localhost");
 
 // Move robot
 double[] homeQ = { 0, -1.57, 1.57, -1.57, -1.57, 0 };
