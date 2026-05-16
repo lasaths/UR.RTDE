@@ -7,6 +7,9 @@ dist/
 *.dll
 *.so
 *.dylib
+# Packaged native runtimes (NuGet) are tracked
+!src/UR.RTDE/runtimes/
+!src/UR.RTDE/runtimes/**
 *.exe
 *.user
 *.suo

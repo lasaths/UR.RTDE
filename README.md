@@ -23,7 +23,7 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 - Native C++ P/Invoke; sustained high-frequency streaming.
 - No external dependencies; native DLLs included in NuGet.
 - Supports Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8).
-- Windows x64 tested; macOS arm64 planned.
+- Windows x64 tested; macOS arm64 (Apple Silicon) native runtimes included as of v1.3.0.
 
 ### API Coverage (70+ methods)
 - Movement: MoveJ/L, SpeedJ/L, ServoJ/C/L, stop modes.

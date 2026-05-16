@@ -10,12 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- macOS arm64 native library support
 - Grasshopper components for Rhino 7/8
 - GitHub Actions CI/CD pipeline
 - Dashboard client wrapper
 - Script client wrapper
 - Publish to NuGet.org
+
+---
+
+## [1.3.0.0] - 2026-05-16
+
+### Added
+- macOS Apple Silicon (`osx-arm64`) native runtimes: `libur_rtde_c_api.dylib`, `librtde` 1.6.3, and Boost 1.85 (`system`/`thread`) with `@loader_path` linkage for self-contained loading.
+
+### Fixed
+- C API header: `#include <stddef.h>` for `size_t` when building the facade with Apple Clang.
+
+### Notes
+- Built against ur_rtde **1.6.3** (GitLab `master`; latest tag remains v1.6.0). Use Boost **1.85** on macOS (Boost 1.89 removes `boost_system` CMake target).
 
 ---
 
