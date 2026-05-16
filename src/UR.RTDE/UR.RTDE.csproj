@@ -44,6 +44,12 @@
              PackagePath="runtimes\osx-arm64\native\"
              Pack="true"
              CopyToOutputDirectory="PreserveNewest" />
+
+    <!-- macOS x64 fallback (optional assets) -->
+    <Content Include="runtimes\osx-x64\native\**\*.*"
+            PackagePath="runtimes\osx-x64\native\"
+            Pack="true"
+            CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Framework-specific dependencies -->

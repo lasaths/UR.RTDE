@@ -6,27 +6,47 @@
     <RootNamespace>URSimTests</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <!-- Cross-platform RID setup for net8.0 runtime tests -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <RuntimeIdentifiers>win-x64;osx-arm64;osx-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <!-- Default to the host RID unless caller explicitly passes -r -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0' and '$(RuntimeIdentifier)' == ''">
+    <RuntimeIdentifier>$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\UR.RTDE\UR.RTDE.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\src\UR.RTDE\runtimes\win-x64\native\**\*.*"
-          Link="runtimes\win-x64\native\%(RecursiveDir)%(Filename)%(Extension)"
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' and '$(RuntimeIdentifier)' != ''">
+    <NativeLib Include="..\..\src\UR.RTDE\runtimes\$(RuntimeIdentifier)\native\**\*.*" />
+    <None Include="@(NativeLib)"
+          Link="runtimes\$(RuntimeIdentifier)\native\%(RecursiveDir)%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <!-- Copy native DLLs next to the test executable to satisfy DllImport search order -->
-  <Target Name="CopyNativeLibrariesToRoot" AfterTargets="Build">
-    <ItemGroup>
-      <NativeLib Include="..\..\src\UR.RTDE\runtimes\win-x64\native\**\*.*" />
-    </ItemGroup>
+  <!-- Copy native libs next to test executable to satisfy DllImport search order -->
+  <Target Name="CopyNativeLibrariesToRoot" AfterTargets="Build"
+          Condition="'$(TargetFramework)' == 'net8.0' and '$(RuntimeIdentifier)' != '' and @(NativeLib) != ''">
     <Copy SourceFiles="@(NativeLib)"
           DestinationFiles="@(NativeLib->'$(OutputPath)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Explicit guidance when selected RID has no native assets in source tree -->
+  <Target Name="ValidateNativeRuntimeAssets" BeforeTargets="Build"
+          Condition="'$(TargetFramework)' == 'net8.0' and '$(RuntimeIdentifier)' != ''">
+    <PropertyGroup>
+      <NativeRuntimeDir>$(MSBuildProjectDirectory)\..\..\src\UR.RTDE\runtimes\$(RuntimeIdentifier)\native</NativeRuntimeDir>
+    </PropertyGroup>
+    <Warning Condition="!Exists('$(NativeRuntimeDir)')"
+             Text="URSimTests: native runtime directory not found for RID '$(RuntimeIdentifier)': $(NativeRuntimeDir). Add native binaries under src/UR.RTDE/runtimes/$(RuntimeIdentifier)/native or run with -r for an available RID (win-x64, osx-arm64, osx-x64)." />
+    <Warning Condition="Exists('$(NativeRuntimeDir)') and @(NativeLib) == ''"
+             Text="URSimTests: no native binaries found in $(NativeRuntimeDir). Runtime may fail to load UR.RTDE native dependencies." />
   </Target>
 
 </Project>
