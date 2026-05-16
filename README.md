@@ -1,6 +1,6 @@
 # UR.RTDE - C# Native Wrapper for Universal Robots
 
-[![License: MIT](https://opensource.org/licenses/MIT)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-4.8%20%7C%208.0-512BD4)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-lightgrey)](https://github.com/lasaths/UR.RTDE)
 [![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
@@ -236,6 +236,8 @@ Windows builds use ur_rtde v1.6.x with Boost via vcpkg. macOS arm64 builds use B
 ## Release
 
 **Versioning:** package version tracks bundled **ur_rtde** (e.g. `1.6.3.0` = ur_rtde 1.6.3). Current release is **1.6.3.0** (NuGet: **1.6.3**).
+
+**NuGet readme:** badge images use [trusted domains](https://learn.microsoft.com/nuget/nuget-org/package-readme-on-nuget-org#allowed-domains-for-images-and-badges) only (`img.shields.io`).
 
 Steps to publish a GitHub Release (manual):
 
