@@ -25,6 +25,7 @@ namespace UR.RTDE
             if (string.IsNullOrWhiteSpace(hostname))
                 throw new ArgumentNullException(nameof(hostname));
 
+            NativeBootstrapGuard.EnsureInitialized("Robotiq gripper initialization");
             _handle = NativeMethods.ur_rtde_robotiq_gripper_create(hostname, port, verbose);
             if (_handle == IntPtr.Zero)
                 throw new RTDEException($"Failed to create Robotiq gripper for {hostname}:{port}");

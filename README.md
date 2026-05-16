@@ -6,7 +6,7 @@
 [![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
 [![NuGet](https://img.shields.io/nuget/v/UR.RTDE.svg)](https://www.nuget.org/packages/UR.RTDE)
 
-Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) v1.6.3.
+Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) 1.6.3 (pinned commit `68ac4e1`).
 
 ## AI-Built & Liability Disclaimer
 
@@ -226,7 +226,7 @@ Windows builds use ur_rtde v1.6.x with Boost via vcpkg. macOS arm64 builds use B
 
 ## Update ur_rtde (quick guide)
 1) Check new upstream tag/release notes on gitlab.com/sdurobotics/ur_rtde.  
-2) Refresh `build-native/ur_rtde` to the tag (backup old copy); apply Boost/compat patches if still needed.  
+2) Refresh `build-native/ur_rtde` to the exact pinned commit hash (not a moving branch/tag); backup old copy and apply Boost/compat patches if still needed.  
 3) Rebuild native lib and facade; copy DLLs into `src/UR.RTDE/runtimes/{rid}/native/`.  
 4) Add any new C API exports, P/Invoke bindings, and wrapper methods; update docs/tests.  
 5) Run test suite (URSim), bump versions, refresh README/AGENTS/CHANGELOG, and pack/publish NuGet.

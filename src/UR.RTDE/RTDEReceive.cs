@@ -51,8 +51,27 @@ namespace UR.RTDE
             if (string.IsNullOrWhiteSpace(hostname))
                 throw new ArgumentNullException(nameof(hostname));
 
+            NativeBootstrapGuard.EnsureInitialized("RTDEReceive connection");
             _hostname = hostname;
-            _handle = NativeMethods.ur_rtde_receive_create(hostname, frequency, flags);
+            try
+            {
+                _handle = NativeMethods.ur_rtde_receive_create(hostname, frequency, flags);
+            }
+            catch (DllNotFoundException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEReceive connection", ex), ex);
+            }
+            catch (BadImageFormatException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEReceive connection", ex), ex);
+            }
+            catch (EntryPointNotFoundException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEReceive connection", ex), ex);
+            }
 
             if (_handle == IntPtr.Zero)
                 throw new RTDEConnectionException($"Failed to connect to robot at {hostname}");

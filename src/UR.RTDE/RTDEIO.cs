@@ -29,9 +29,28 @@ namespace UR.RTDE
             if (string.IsNullOrWhiteSpace(hostname))
                 throw new ArgumentNullException(nameof(hostname));
 
+            NativeBootstrapGuard.EnsureInitialized("RTDEIO connection");
             _hostname = hostname;
             ushort flags = verbose ? (ushort)NativeMethods.Flags.Verbose : (ushort)0;
-            _handle = NativeMethods.ur_rtde_io_create(hostname, flags);
+            try
+            {
+                _handle = NativeMethods.ur_rtde_io_create(hostname, flags);
+            }
+            catch (DllNotFoundException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEIO connection", ex), ex);
+            }
+            catch (BadImageFormatException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEIO connection", ex), ex);
+            }
+            catch (EntryPointNotFoundException ex)
+            {
+                throw new RTDEConnectionException(
+                    NativeLoadDiagnostics.BuildMessage("RTDEIO connection", ex), ex);
+            }
 
             if (_handle == IntPtr.Zero)
                 throw new RTDEConnectionException($"Failed to connect to robot at {hostname}");

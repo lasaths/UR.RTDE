@@ -29,7 +29,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 
 ## Constraints & scope
 
-* **Upstream**: use the **latest** `ur_rtde` from SDU Robotics on GitLab. See quick guide below for update steps.
+* **Upstream**: use a **pinned ur_rtde commit** from SDU Robotics on GitLab for reproducible builds (current pin: `68ac4e1`). See quick guide below for update steps.
 * **Platforms/TFMs**:
 
   * Managed: **`net48`** and **`net8.0`** (optionally share logic via **`netstandard2.0`** library).
@@ -106,7 +106,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 
 ## Update ur_rtde (quick guide)
 1) Review new upstream tag/release notes.  
-2) Refresh `build-native/ur_rtde` to the target tag (backup the old tree); apply Boost/compat patches if still needed.  
+2) Refresh `build-native/ur_rtde` to an explicit commit hash (backup the old tree); apply Boost/compat patches if still needed.  
 3) Rebuild native lib and facade; copy DLLs into `src/UR.RTDE/runtimes/{rid}/native/`.  
 4) Add any new C API exports, P/Invoke bindings, and wrapper methods; update docs/tests.  
 5) Run URSim tests, bump versions, refresh README/AGENTS/CHANGELOG, then pack/publish NuGet.
@@ -418,6 +418,8 @@ When a new version of the upstream ur_rtde C++ library is released, follow the q
 - [OK] URSim validation required before release
 
 **Versioning Strategy**:
+- **Alignment rule**: NuGet package version should match the upstream `ur_rtde` version (use project-specific patch/build suffix only when needed, e.g., `1.6.3.1`).
+- **Release gate (RID coverage)**: Do not publish a NuGet release claiming multi-platform support unless native binaries are present under `src/UR.RTDE/runtimes/{rid}/native/` for each declared RID (`win-x64`, `osx-arm64`, and `osx-x64` when supported).
 - **Patch** (2.0.x): Bug fixes only, no API changes
 - **Minor** (2.x.0): New features, backward compatible
 - **Major** (x.0.0): Breaking changes, API redesign

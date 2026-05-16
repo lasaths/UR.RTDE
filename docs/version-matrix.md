@@ -2,7 +2,7 @@
 
 | Component | Version | Commit/Tag | Date |
 |-----------|---------|------------|------|
-| **ur_rtde** | v1.6.2 | [Latest](https://gitlab.com/sdurobotics/ur_rtde/-/tags/v1.6.2) | 2025 |
+| **ur_rtde** | 1.6.3 (pinned commit) | [68ac4e1](https://gitlab.com/sdurobotics/ur_rtde/-/commit/68ac4e18f357f8e9361bfc5eef344acd9aa241be) | 2026-05-16 |
 | **License** | MIT | - | - |
 
 ## Target Platforms

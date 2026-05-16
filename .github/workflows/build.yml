@@ -39,9 +39,10 @@ jobs:
         env:
           VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}
         run: |
+          $urRtdeCommit = "68ac4e18f357f8e9361bfc5eef344acd9aa241be"
           git clone --recursive https://gitlab.com/sdurobotics/ur_rtde.git
           cd ur_rtde
-          git checkout v1.6.0
+          git checkout $urRtdeCommit
           mkdir build
           cd build
           $vcpkgToolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
