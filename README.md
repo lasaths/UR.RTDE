@@ -6,7 +6,7 @@
 [![Build](https://img.shields.io/badge/Build-Success-brightgreen)](https://github.com/lasaths/UR.RTDE)
 [![NuGet](https://img.shields.io/nuget/v/UR.RTDE.svg)](https://www.nuget.org/packages/UR.RTDE)
 
-Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) v1.6.2.
+Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Python dependency; NuGet package contains managed assemblies and native binaries. Based on [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) v1.6.3.
 
 ## AI-Built & Liability Disclaimer
 
@@ -19,11 +19,11 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 
 ## Target Features
 
-### Core Capabilities (v1.2.0.0)
+### Core Capabilities (v1.6.3.0)
 - Native C++ P/Invoke; sustained high-frequency streaming.
-- No external dependencies; native DLLs included in NuGet.
+- No external dependencies; native libraries included in NuGet (`win-x64` DLLs, `osx-arm64` dylibs).
 - Supports Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8).
-- Windows x64 tested; macOS arm64 (Apple Silicon) native runtimes included as of v1.3.0.
+- Windows x64 tested; macOS arm64 (Apple Silicon) native runtimes included (v1.6.3+).
 
 ### API Coverage (70+ methods)
 - Movement: MoveJ/L, SpeedJ/L, ServoJ/C/L, stop modes.
@@ -69,7 +69,7 @@ dotnet add package UR.RTDE --source C:\path\to\UR.RTDE\nupkgs
 dotnet add package UR.RTDE
 ```
 
-Native DLLs copy automatically to the output folder.
+Native libraries copy automatically to the output folder (`runtimes/{rid}/native/`).
 
 ---
 
@@ -156,7 +156,7 @@ Console.WriteLine($"Joint 0: {q[0]:F4} rad");
 
 ## Building from Source
 
-Build is verified; see `BUILD_SUCCESS.md` for details.
+Build is verified on Windows; see `native/BUILD.md` for Windows and macOS instructions.
 
 ### Prerequisites
 - Visual Studio 2026 (v145 toolset) with Desktop C++ workload
@@ -194,7 +194,7 @@ dotnet build src\UR.RTDE -c Release
 dotnet pack src\UR.RTDE -c Release -o nupkgs
 ```
 
-ur_rtde v1.6.2 source includes Boost 1.89.0 compatibility patches; see `BUILD_SUCCESS.md` and `BUILD_INSTRUCTIONS.md`.
+Windows builds use ur_rtde v1.6.x with Boost via vcpkg. macOS arm64 builds use Boost 1.85 (`brew install boost@1.85`); see `native/BUILD.md`.
 
 ---
 
@@ -215,10 +215,10 @@ ur_rtde v1.6.2 source includes Boost 1.89.0 compatibility patches; see `BUILD_SU
 ---
 
 ## Test Plan (summary)
-- Location: `samples/ExtendedFeaturesTest/Program.cs`
-- Coverage: kinematics, extended data, safety status, analog/digital I/O, advanced motion (ServoC/ServoStop/SpeedStop), speed slider.
-- Success criteria: 7/7 categories pass; IK round-trip error < 0.001 rad; safety flags valid; I/O round-trips match commands; robot stops cleanly.
-- Execution: `dotnet run -c Release` from `samples/ExtendedFeaturesTest` (optional test name filter).
+- Location: `samples/URSimTests/Program.cs` (core) and `samples/URSimTests/AdvancedTests.cs`
+- Coverage: connection, streaming, MoveJ, emergency stop, kinematics, extended data, safety, I/O, advanced motion.
+- Success criteria: core and advanced suites pass against URSim; see `samples/URSimTests/README.md`.
+- Execution: `dotnet run -c Release --project samples/URSimTests` (optional test filter argument).
 
 ## Latest Test Results (URSim snapshot)
 - Date/Platform: 2025-10-27, Windows 11, .NET 8.0, URSim e-Series 5.23.0 (Docker, localhost).
@@ -235,27 +235,26 @@ ur_rtde v1.6.2 source includes Boost 1.89.0 compatibility patches; see `BUILD_SU
 
 ## Release
 
-We use SemVer. This version is 1.2.0.0 (NuGet normalized as 1.2.0).
+**Versioning:** package version tracks bundled **ur_rtde** (e.g. `1.6.3.0` = ur_rtde 1.6.3). Current release is **1.6.3.0** (NuGet: **1.6.3**).
 
 Steps to publish a GitHub Release (manual):
 
 ```powershell
 # Ensure your working tree is clean and up to date
-git pull origin main
+git pull origin master
 
-# Tag the release (match csproj version)
-git tag v1.2.0.0 -m "UR.RTDE 1.2.0.0"
-git push origin v1.2.0.0
+# Tag the release (match UR.RTDE.csproj Version and ur_rtde)
+git tag v1.6.3.0 -m "UR.RTDE 1.6.3.0 (ur_rtde 1.6.3)"
+git push origin v1.6.3.0
 
-# Create a GitHub Release for tag v1.2.0.0 and upload the nupkg
+# Create a GitHub Release for tag v1.6.3.0 and upload the nupkg
 ```
 
 NuGet publish (manual):
 
 ```powershell
 dotnet pack src/UR.RTDE -c Release -o nupkgs
-# NuGet normalizes trailing .0 segments, so the file is '1.2.0'
-dotnet nuget push nupkgs/UR.RTDE.1.2.0.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+dotnet nuget push nupkgs/UR.RTDE.1.6.3.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
 ```
 
 ---

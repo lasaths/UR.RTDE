@@ -3,7 +3,7 @@
 All notable changes to UR.RTDE will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Package versions **track upstream [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde)** (`MAJOR.MINOR.PATCH`, optional fourth segment for wrapper-only fixes).
 
 ---
 
@@ -18,16 +18,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.3.0.0] - 2026-05-16
+## [1.6.3.0] - 2026-05-16
+
+### Changed
+- **Versioning policy:** NuGet package version now matches bundled **ur_rtde 1.6.3** (replaces independent `1.3.0` on the feed).
 
 ### Added
-- macOS Apple Silicon (`osx-arm64`) native runtimes: `libur_rtde_c_api.dylib`, `librtde` 1.6.3, and Boost 1.85 (`system`/`thread`) with `@loader_path` linkage for self-contained loading.
+- macOS Apple Silicon (`osx-arm64`) native runtimes: `libur_rtde_c_api.dylib`, `librtde` 1.6.3, and Boost 1.85 (`system`/`thread`) with `@loader_path` linkage.
 
 ### Fixed
 - C API header: `#include <stddef.h>` for `size_t` when building the facade with Apple Clang.
+- README: release instructions, test paths, build doc links, and `master` branch name.
 
 ### Notes
-- Built against ur_rtde **1.6.3** (GitLab `master`; latest tag remains v1.6.0). Use Boost **1.85** on macOS (Boost 1.89 removes `boost_system` CMake target).
+- Use Boost **1.85** on macOS when rebuilding natives (Boost 1.89 removes `boost_system` CMake target).
+
+---
+
+## [1.3.0.0] - 2026-05-16 (superseded by 1.6.3.0)
+
+Same payload as 1.6.3.0; use **1.6.3.0** for version alignment with ur_rtde.
 
 ---
 
