@@ -9,6 +9,7 @@ on:
 env:
   VCPKG_ROOT: ${{ github.workspace }}/vcpkg
   VCPKG_COMMIT: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+  VCPKG_DEFAULT_TRIPLET: x64-windows
 
 jobs:
   build-windows:
@@ -28,7 +29,11 @@ jobs:
 
       - name: Install Boost
         run: |
-          & "$env:VCPKG_ROOT\vcpkg.exe" install boost-system:x64-windows boost-thread:x64-windows
+          # Must match ur_rtde find_package(Boost ... system thread program_options)
+          & "$env:VCPKG_ROOT\vcpkg.exe" install `
+            boost-system:x64-windows `
+            boost-thread:x64-windows `
+            boost-program-options:x64-windows
 
       - name: Clone and build ur_rtde
         run: |
@@ -39,7 +44,10 @@ jobs:
           mkdir build
           cd build
           $vcpkgToolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DPYTHON_BINDINGS=OFF `
+            -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
           cmake --build . --config Release
           cmake --install . --prefix ../install
 
@@ -49,14 +57,18 @@ jobs:
           mkdir build
           cd build
           $vcpkgToolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
-          cmake .. -DCMAKE_BUILD_TYPE=Release -Dur_rtde_DIR="${{ github.workspace }}/ur_rtde/install/lib/cmake/ur_rtde" -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
+          cmake .. -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -Dur_rtde_DIR="${{ github.workspace }}/ur_rtde/install/lib/cmake/ur_rtde" `
+            -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
           cmake --build . --config Release
 
       - name: Copy native artifacts
         run: |
-          mkdir src\UR.RTDE\runtimes\win-x64\native
-          copy native\facade\build\Release\*.dll src\UR.RTDE\runtimes\win-x64\native\
-          copy ur_rtde\install\bin\rtde.dll src\UR.RTDE\runtimes\win-x64\native\
+          New-Item -ItemType Directory -Force -Path src\UR.RTDE\runtimes\win-x64\native | Out-Null
+          Copy-Item native\facade\build\Release\*.dll src\UR.RTDE\runtimes\win-x64\native\
+          Copy-Item ur_rtde\install\bin\rtde.dll src\UR.RTDE\runtimes\win-x64\native\
+          Copy-Item "$env:VCPKG_ROOT\installed\x64-windows\bin\boost_thread*.dll" src\UR.RTDE\runtimes\win-x64\native\ -ErrorAction SilentlyContinue
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
