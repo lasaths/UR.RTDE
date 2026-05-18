@@ -1,0 +1,32 @@
+# URSim e-Series for UR.RTDE / Grasshopper local development.
+# Ports match Multi-Actor-Interface-Library/docker/ursim (RTDE receive + control).
+#
+# Quick start:
+#   docker compose -f docker/ursim/docker-compose.yml up -d
+#   open http://127.0.0.1:6080/vnc.html?host=localhost&port=6080
+#
+# Optional image with External Control URCap pre-installed:
+#   docker compose -f docker/ursim/docker-compose.yml -f docker/ursim/docker-compose.external-control.yml up -d --build
+
+services:
+  ursim:
+    image: universalrobots/ursim_e-series:latest
+    container_name: ursim
+    environment:
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "127.0.0.1:5900:5900"
+      - "127.0.0.1:6080:6080"
+      - "127.0.0.1:29999:29999"
+      - "127.0.0.1:30001:30001"
+      - "127.0.0.1:30002:30002"
+      - "127.0.0.1:30003:30003"
+      - "127.0.0.1:30004:30004"
+      - "127.0.0.1:50002:50002"
+    volumes:
+      - ursim-programs:/ursim/programs
+    stdin_open: true
+    tty: true
+
+volumes:
+  ursim-programs:

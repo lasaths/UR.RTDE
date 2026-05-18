@@ -18,6 +18,50 @@ Package versions **track upstream [ur_rtde](https://gitlab.com/sdurobotics/ur_rt
 
 ---
 
+## [1.6.3.9] - 2026-05-18
+
+### Fixed
+- macOS Apple Silicon / Rhino 8: validated end-to-end native load and RTDE connect with unified `libur_rtde_c_api.dylib` and thread-safe bootstrap (builds on 1.6.3.8).
+
+### Added
+- Restored **win-x64** native runtimes in the NuGet package (`ur_rtde_c_api.dll`, `rtde.dll`, Boost thread DLLs) so Windows Rhino 7/8 deployments again receive RID-specific binaries alongside **osx-arm64**.
+
+### Changed
+- macOS arm64 package ships only `libur_rtde_c_api.dylib` (no separate `librtde` or Boost dylibs).
+
+---
+
+## [1.6.3.8] - 2026-05-18
+
+### Fixed
+- macOS native bootstrap race: `Connect` can run on a thread-pool worker in Grasshopper, so initialization now uses a thread-safe one-shot path before any P/Invoke call can enter `ur_rtde_receive_create` or related native constructors.
+- Native preflight now waits for the macOS `dlopen` sequence and .NET 8 `DllImport` resolver registration to complete before marking bootstrap complete.
+
+### Changed
+- macOS arm64 runtime now ships as a single `libur_rtde_c_api.dylib` with `ur_rtde` and Boost linked internally and C++ symbols hidden; no separate `librtde*.dylib` or Boost dylibs should be deployed for Rhino.
+- macOS native loading uses `RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST` for the facade to reduce accidental symbol binding in Rhino 8 processes.
+- macOS runtime package removes separate `librtde` and Boost dylibs from the NuGet runtime payload.
+
+### Notes
+- Rhino installed on a non-standard volume path is supported; the relevant deploy location is the Grasshopper Libraries folder that contains `UR.RTDE.dll` and the `runtimes/osx-arm64/native/` tree.
+- End-to-end Rhino 8 Connect validation still requires a full Rhino restart after replacing the plugin and native dylibs.
+
+---
+
+## [1.6.3.3] - 2026-05-16
+
+### Added
+- Native bootstrap preflight guard before constructing RTDE native clients (`RTDEControl`, `RTDEReceive`, `RTDEIO`, `RobotiqGripperNative`) with clearer load-failure diagnostics.
+
+### Changed
+- Native source workflow now pins `ur_rtde` to commit `68ac4e18f357f8e9361bfc5eef344acd9aa241be` for reproducible builds.
+- Rebuilt macOS arm64 runtime dylibs from pinned source and normalized linkage to `@loader_path` for deployable in-package loading.
+
+### Notes
+- This release supersedes `1.6.3.2` because that package version was already published.
+
+---
+
 ## [1.6.3.0] - 2026-05-16
 
 ### Changed

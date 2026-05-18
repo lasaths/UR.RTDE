@@ -10,6 +10,12 @@ namespace UR.RTDE.Native
     {
         private const string DllName = "ur_rtde_c_api";
 
+        static NativeMethods()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                MacOsNativeLibraryBootstrap.EnsureInitialized();
+        }
+
         // ====================================================================
         // Enums and Constants
         // ====================================================================

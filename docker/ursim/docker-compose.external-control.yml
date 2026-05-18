@@ -1,0 +1,7 @@
+# Overlay: build URSim with External Control URCap (port 50002 / RTDE control flags with UploadScript).
+services:
+  ursim:
+    image: ur-rtde-ursim:latest
+    build:
+      context: .
+      dockerfile: Dockerfile

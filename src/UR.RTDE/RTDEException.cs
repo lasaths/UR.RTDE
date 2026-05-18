@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace UR.RTDE
 {
@@ -82,27 +81,38 @@ namespace UR.RTDE
 
     internal static class NativeBootstrapGuard
     {
-        private static int _initialized;
+        private static readonly object Gate = new object();
+        private static bool _complete;
 
         internal static void EnsureInitialized(string operation)
         {
-            if (Interlocked.Exchange(ref _initialized, 1) == 1)
-                return;
+            lock (Gate)
+            {
+                if (_complete)
+                    return;
 
-            try
-            {
-                VerifyPrimaryNativeLibrary();
-            }
-            catch (Exception ex)
-            {
-                Interlocked.Exchange(ref _initialized, 0);
-                throw new RTDEConnectionException(
-                    NativeLoadDiagnostics.BuildBootstrapMessage(operation, ex), ex);
+                try
+                {
+                    VerifyPrimaryNativeLibrary();
+                }
+                catch (Exception ex)
+                {
+                    throw new RTDEConnectionException(
+                        NativeLoadDiagnostics.BuildBootstrapMessage(operation, ex), ex);
+                }
+
+                _complete = true;
             }
         }
 
         private static void VerifyPrimaryNativeLibrary()
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Native.MacOsNativeLibraryBootstrap.EnsureInitialized();
+                return;
+            }
+
             string rid = NativeLoadDiagnostics.GetRuntimeIdentifier();
             string libraryName = NativeLoadDiagnostics.GetPrimaryNativeLibraryFileName();
             List<string> searchedPaths = new();

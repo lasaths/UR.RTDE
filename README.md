@@ -19,11 +19,11 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 
 ## Target Features
 
-### Core Capabilities (v1.6.3.0)
+### Core Capabilities (v1.6.3.9)
 - Native C++ P/Invoke; sustained high-frequency streaming.
 - No external dependencies; native libraries included in NuGet (`win-x64` DLLs, `osx-arm64` dylibs).
 - Supports Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8).
-- Windows x64 tested; macOS arm64 (Apple Silicon) native runtimes included (v1.6.3+).
+- Windows x64 and macOS arm64 (Apple Silicon) native runtimes included in NuGet (`win-x64`, `osx-arm64`); macOS hardened for Rhino 8 in-process loading (v1.6.3.9+).
 
 ### API Coverage (70+ methods)
 - Movement: MoveJ/L, SpeedJ/L, ServoJ/C/L, stop modes.
@@ -41,7 +41,8 @@ Native C# wrapper for Universal Robots RTDE using a C++ P/Invoke facade. No Pyth
 - Validated on URSim e-Series 5.23.0; 22/22 core and 6/6 advanced tests passing (MoveJ/L, ServoJ/L, SpeedJ/L, ForceMode, Jog, TeachMode, protective stop, extended receive data).
 - Native P/Invoke path with Robotiq fast-path register bridge; sustained high-frequency streaming confirmed in URSim.
 - Focus areas: movement, kinematics, safety, receive data, digital/analog I/O, Robotiq (native, URScript, RTDE bridge).
-- Pending: dashboard/script client additions and extended receive extras; see `AGENTS.md`.
+- macOS Rhino 8: package v1.6.3.9+ contains the thread-safe native bootstrap and a single hidden-symbol `osx-arm64` C facade dylib used to avoid Rhino Boost collisions. After updating a Grasshopper plugin, remove stale `librtde*.dylib`/Boost dylibs from the deploy folder, then fully quit and restart Rhino before testing Connect.
+- Pending: dashboard/script client additions, extended receive extras, and end-to-end Rhino 8 Connect confirmation on the target macOS machine; see `AGENTS.md`.
 
 ---
 
@@ -81,56 +82,60 @@ This project is validated against **URSim e-Series running in Docker**. For loca
 
 Install Docker Desktop for Windows or macOS and make sure `docker` works from your terminal.
 
-### 2. Pull the official URSim image
+### 2. Start URSim (recommended: Docker Compose)
 
-```powershell
-docker pull universalrobots/ursim_e-series
+From this repository root:
+
+```bash
+docker compose -f docker/ursim/docker-compose.yml up -d
 ```
 
-### 3. Start URSim and publish the required ports
+See [docker/ursim/README.md](docker/ursim/README.md) for port list, optional External Control image, and troubleshooting.
 
-```powershell
-docker volume create ursim-programs
-
-docker run --rm -it `
-  --name ursim `
-  -p 127.0.0.1:5900:5900 `
-  -p 127.0.0.1:6080:6080 `
-  -p 127.0.0.1:29999:29999 `
-  -p 127.0.0.1:30002:30002 `
-  -p 127.0.0.1:30004:30004 `
-  --mount source=ursim-programs,target=/ursim/programs `
-  universalrobots/ursim_e-series
-```
-
-Published ports:
+Published ports (bound to `127.0.0.1` on the host):
 - `6080`: browser-based VNC UI
 - `5900`: VNC client
 - `29999`: dashboard server
+- `30001`–`30004`: robot interfaces (**`30003`** = RTDE control, **`30004`** = RTDE receive)
 - `30002`: URScript client
-- `30004`: RTDE, used by `UR.RTDE`
+- `50002`: External Control URCap (mapped; service may be inactive until URCap is installed)
 
-### 4. Open the simulator UI
+Verify RTDE control is reachable (required for `RTDEControl` / MoveJ):
 
-Open `http://localhost:6080/vnc.html` in your browser.
+```bash
+nc -zv 127.0.0.1 30003
+nc -zv 127.0.0.1 30004
+```
+
+### 3. Open the simulator UI
+
+Open [http://127.0.0.1:6080/vnc.html?host=localhost&port=6080](http://127.0.0.1:6080/vnc.html?host=localhost&port=6080).
 
 Inside URSim:
 - Power on the robot
 - Release brakes
 - Clear any startup or safety dialogs before running tests or motion commands
 
-### 5. Connect from `UR.RTDE`
+### 4. Connect from `UR.RTDE`
 
-Use `localhost` as the host name when URSim is running with the port mapping above.
+Use `127.0.0.1` or `localhost` when URSim is running with the port mapping above.
+
+```bash
+# macOS / Linux
+nc -zv 127.0.0.1 30003
+nc -zv 127.0.0.1 30004
+```
 
 ```powershell
-$env:ROBOT_IP = 'localhost'
-Test-NetConnection localhost -Port 30004
+# Windows
+Test-NetConnection 127.0.0.1 -Port 30003
+Test-NetConnection 127.0.0.1 -Port 30004
 ```
 
 Notes:
-- For a real robot, replace `localhost` with the robot IP on your network.
-- If you need to persist URCaps or install Robotiq URCap inside URSim, mount additional Docker volumes as needed.
+- For a real robot, replace `127.0.0.1` with the robot IP on your network.
+- **Receive-only on port 30004 is not enough** for motion: `RTDEControl` needs **30003** published to the host.
+- Optional External Control URCap: `docker compose -f docker/ursim/docker-compose.yml -f docker/ursim/docker-compose.external-control.yml up -d --build`
 
 ---
 
@@ -235,7 +240,7 @@ Windows builds use ur_rtde v1.6.x with Boost via vcpkg. macOS arm64 builds use B
 
 ## Release
 
-**Versioning:** package version tracks bundled **ur_rtde** (e.g. `1.6.3.0` = ur_rtde 1.6.3). Current release is **1.6.3.0** (NuGet: **1.6.3**).
+**Versioning:** package version tracks bundled **ur_rtde** (e.g. `1.6.3.0` = ur_rtde 1.6.3; fourth segment is for wrapper-only fixes). Current release is **1.6.3.9**.
 
 **NuGet readme:** badge images use [trusted domains](https://learn.microsoft.com/nuget/nuget-org/package-readme-on-nuget-org#allowed-domains-for-images-and-badges) only (`img.shields.io`).
 
@@ -245,18 +250,18 @@ Steps to publish a GitHub Release (manual):
 # Ensure your working tree is clean and up to date
 git pull origin master
 
-# Tag the release (match UR.RTDE.csproj Version and ur_rtde)
-git tag v1.6.3.0 -m "UR.RTDE 1.6.3.0 (ur_rtde 1.6.3)"
-git push origin v1.6.3.0
+# Tag the release (match UR.RTDE.csproj Version)
+git tag v1.6.3.9 -m "UR.RTDE 1.6.3.9 (ur_rtde 1.6.3)"
+git push origin v1.6.3.9
 
-# Create a GitHub Release for tag v1.6.3.0 and upload the nupkg
+# Create a GitHub Release for tag v1.6.3.9 and upload the nupkg
 ```
 
 NuGet publish (manual):
 
 ```powershell
 dotnet pack src/UR.RTDE -c Release -o nupkgs
-dotnet nuget push nupkgs/UR.RTDE.1.6.3.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
+dotnet nuget push nupkgs/UR.RTDE.1.6.3.9.nupkg -k <API_KEY> -s https://api.nuget.org/v3/index.json
 ```
 
 ---

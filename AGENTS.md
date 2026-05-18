@@ -67,7 +67,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 * **Docs**:
 
   * Quickstart (Rhino 7 Win, Rhino 8 Win/mac).
-  * Troubleshooting (native load, mac Gatekeeper, firewall/port 30004).
+  * Troubleshooting (native load, mac Gatekeeper, RTDE ports **30003** + **30004**, URSim Docker).
   * Version matrix (Rhino versions, .NET, `ur_rtde` commit).
   * **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
   * Status/coverage summary lives in `README.md` (single source; keep in sync with this file)
@@ -79,7 +79,7 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 |-----------|--------|-------|
 | **Loads in Rhino 7 (.NET 4.8)** | [OK] READY | net48 assembly built & packaged |
 | **Loads in Rhino 8 (.NET 8)** | [OK] READY | net8.0 assembly built & packaged |
-| **Cross-platform** | PARTIAL | Windows x64 [OK] (tested), macOS pending |
+| **Cross-platform** | PARTIAL | Windows x64 [OK]; macOS arm64 native + URSim Docker [OK] with `docker/ursim` port map |
 | **Streaming >=5 min @ 500 Hz** | [OK] TESTED | 10s test @ 98.6 Hz (C# overhead) |
 | **No UI blocking** | [OK] COMPLETE | Async/Task-based C# API |
 | **MoveJ execution** | [OK] TESTED | URSim validation passed +/-0.01 rad |
@@ -103,6 +103,54 @@ Delivering a **NuGet package** named **`UR.RTDE`** with **native C++ P/Invoke** 
 - Date/Platform: 2025-10-27, Windows 11, .NET 8.0, URSim e-Series 5.23.0 (Docker, localhost).
 - Result: 7/7 tests passed; streaming 98.6 Hz average; MoveJ precision +/-0.01 rad; emergency stop immediate; reconnection stable.
 - Details: see README summary for telemetry and findings.
+- **2026-05-18 (macOS arm64)**: `RTDEReceive` OK on `127.0.0.1:30004`; `RTDEControl` requires **30003** published and ~1–2 min PolyScope boot before connect. Canonical Docker setup: `docker/ursim/` (ports aligned with Multi-Actor-Interface-Library).
+
+## URSim via Docker (agents)
+
+**Start** (from repo root):
+
+```bash
+docker compose -f docker/ursim/docker-compose.yml up -d
+```
+
+See [docker/ursim/README.md](docker/ursim/README.md). Optional External Control URCap image:
+
+```bash
+docker compose -f docker/ursim/docker-compose.yml \
+  -f docker/ursim/docker-compose.external-control.yml up -d --build
+```
+
+**Host ports** (bound to `127.0.0.1` in compose):
+
+| Port | Role |
+|------|------|
+| 6080 / 5900 | PolyScope VNC |
+| 29999 | Dashboard |
+| 30001–30002 | Primary / URScript |
+| **30003** | **RTDE control** (`RTDEControl`, MoveJ) — required |
+| **30004** | **RTDE receive** (`RTDEReceive`, streaming) |
+| 50002 | External Control URCap (optional; may be closed until URCap installed) |
+
+**Verify before integration tests or Grasshopper connect:**
+
+```bash
+nc -zv 127.0.0.1 30003
+nc -zv 127.0.0.1 30004
+```
+
+**Common failure**: mapping only `30004` — receive works, control fails with `Failed to connect to robot at 127.0.0.1`.
+
+**Boot**: Power on and release brakes in PolyScope; wait 1–2 minutes after container start before `RTDEControl` (port open ≠ controller ready).
+
+**Connect host**: `127.0.0.1` on macOS/Windows Docker Desktop (not Linux `--network host` / `192.168.56.1`).
+
+**Integration tests**:
+
+```bash
+dotnet run --project samples/URSimTests -c Release -f net8.0
+```
+
+**Grasshopper** (sibling repo `UR.RTDE.Grasshopper`): same IP/ports; `URSession.CreateControlWithFallback()` tries several RTDE control flags and reports port 30003 reachability in `LastError`.
 
 ## Update ur_rtde (quick guide)
 1) Review new upstream tag/release notes.  
@@ -336,7 +384,7 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 28. [OK] **Documentation**: Complete API documentation
 
 ### Phase 6: Testing & Validation [OK] COMPLETE
-29. [OK] **URSim setup**: URSim e-Series 5.23.0 (Docker, reachable via ROBOT_IP/localhost)
+29. [OK] **URSim setup**: URSim e-Series via `docker/ursim/docker-compose.yml` (`127.0.0.1`, ports 30003+30004)
 30. [OK] **Connection test**: Passed - control & receive interfaces
 31. [OK] **Data streaming test**: Passed - 98.6 Hz (986 samples in 10s)
 32. [OK] **Movement test**: Passed - MoveJ with +/-0.01 rad precision
@@ -349,8 +397,8 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 
 ### Phase 7: Future Enhancements PLANNED
 39. [OK] **NuGet publish**: Published v1.2.0 to NuGet.org
-40. **Grasshopper components**: GH integration for Rhino 7/8
-41. **macOS native build**: arm64 binaries via CI
+40. [OK] **Grasshopper components**: `UR.RTDE.Grasshopper` (Rhino 8 Mac/Win; see sibling repo AGENTS.md)
+41. [OK] **macOS native build**: arm64 `libur_rtde_c_api.dylib` (static Boost); `MacOsNativeLibraryBootstrap` for Rhino/GH
 42. **CI/CD**: GitHub Actions disabled (URSim not accessible). Manual release process documented.
 43. **Additional features**: Dashboard client, remaining ur_rtde APIs
 44. **Long-duration stress test**: 5+ min streaming @ 500 Hz
@@ -358,7 +406,8 @@ dotnet pack src\UR.RTDE -c Release -o nupkgs
 
 ## Risk register (and default mitigations)
 
-* **Native load issues** -> Use `runtimes/{rid}/native/`; add runtime diagnostics of probing paths; doc Gatekeeper steps on macOS.
+* **Native load issues** -> Use `runtimes/{rid}/native/`; `MacOsNativeLibraryBootstrap` + `codesign` on macOS; doc Gatekeeper in `docs/troubleshooting.md`.
+* **URSim control fails, receive OK** -> Publish **30003** to host (`docker/ursim/docker-compose.yml`); wait for PolyScope boot; do not map only 30004.
 * **Threading/UI blocking** -> Background receive thread; marshal to UI safely; cancellation tokens; graceful Dispose.
 * **Upstream drift** -> Pin commit; add a "bump `ur_rtde`" CI job gated by tests.
 * **DLL hell on net48** -> Prefer `PackageReference`; optional fallback loader if probing fails.
@@ -402,6 +451,7 @@ When a new version of the upstream ur_rtde C++ library is released, follow the q
 - `src/UR.RTDE/RTDEIO.cs` - I/O interface wrapper
 - `src/UR.RTDE/UR.RTDE.csproj` - Version numbers
 - `README.md`, `AGENTS.md`, `CHANGELOG.md` - Documentation
+- `docker/ursim/` - URSim Docker Compose (ports 30001–30004, optional External Control Dockerfile)
 
 **Critical Patches** (as of ur_rtde v1.6.0):
 - Boost 1.89 compatibility: `io_service` -> `io_context` (files: `rtde.h`, `rtde.cpp`)

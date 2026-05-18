@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "URSimTests (macOS Debug)": {
+      "commandName": "Project"
+    },
+    "URSimTests (macOS Debug, quick)": {
+      "commandName": "Project",
+      "commandLineArgs": "quick"
+    }
+  }
+}

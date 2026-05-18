@@ -28,7 +28,7 @@ copy runtimes\win-x64\native\*.dll bin\Debug\net48\
    xattr -d com.apple.quarantine libur_rtde_c_api.dylib
    ```
 
-2. **Check dylib location**: Should be in `bin/Debug/net8.0/runtimes/osx-arm64/native/`
+2. **Check dylib location**: Should be in `bin/Debug/net8.0/runtimes/osx-arm64/native/`, or in the Grasshopper plugin folder beside `UR.RTDE.dll` with the same `runtimes/osx-arm64/native/` tree preserved.
 
 3. **Verify architecture**: Rhino 8 macOS is arm64
    ```bash
@@ -39,7 +39,8 @@ copy runtimes\win-x64\native\*.dll bin\Debug\net48\
 4. **Check dependencies**:
    ```bash
    otool -L libur_rtde_c_api.dylib
-   # Verify all Boost libs are found
+   # For UR.RTDE 1.6.3.9+, this should list only libur_rtde_c_api itself,
+   # libc++, and libSystem. It should not list librtde or Boost dylibs.
    ```
 
 **Manual fix**:
@@ -47,6 +48,35 @@ copy runtimes\win-x64\native\*.dll bin\Debug\net48\
 # Copy to output directory
 cp -r runtimes/osx-arm64/native/*.dylib bin/Debug/net8.0/
 ```
+
+### Rhino 8 / Grasshopper crash on macOS arm64 during Connect
+
+**Symptom**: Rhino aborts on `UR Session -> Connect`, often with a native stack inside Boost.Asio `deadline_timer_service` during `ur_rtde_receive_create`.
+
+**Known fixes in UR.RTDE 1.6.3.9+**:
+1. macOS bootstrap is thread-safe before `RTDEControl`, `RTDEReceive`, `RTDEIO`, or `RobotiqGripperNative` enters P/Invoke.
+2. macOS native loading uses `RTLD_LOCAL` and `RTLD_FIRST` for the C facade.
+3. The macOS arm64 runtime is a single `libur_rtde_c_api.dylib` with `ur_rtde` and Boost linked internally.
+4. Separate `librtde*.dylib` and Boost dylibs are not part of the package and should be removed from Rhino deploy folders.
+
+**Checklist**:
+1. Fully quit Rhino after replacing any `.gha`, `UR.RTDE.dll`, or `.dylib` files. macOS and .NET will not unload the old native library from a running Rhino process.
+2. Use a single deploy folder under:
+   `~/Library/Application Support/McNeel/Rhinoceros/8.0/Plug-ins/Grasshopper (...044e8580d9cf...)/Libraries/UR.RTDE.Grasshopper/`
+3. Remove duplicate copies from wrong Grasshopper GUID folders, `Documents`, old Yak/manual drops, or prior test deploy folders.
+4. Preserve the NuGet runtime tree:
+   `UR.RTDE.Grasshopper/runtimes/osx-arm64/native/libur_rtde_c_api.dylib`.
+   Remove stale `librtde*.dylib` and `libboost*.dylib` files from the same deploy tree.
+5. Verify the deployed runtime:
+   ```bash
+   cd "$HOME/Library/Application Support/McNeel/Rhinoceros/8.0/Plug-ins/Grasshopper (...044e8580d9cf...)/Libraries/UR.RTDE.Grasshopper/runtimes/osx-arm64/native"
+   ls -lh libur_rtde_c_api.dylib
+   otool -L libur_rtde_c_api.dylib
+   find ../.. -name 'librtde*.dylib' -o -name 'libboost*.dylib'
+   nm -gU libur_rtde_c_api.dylib | c++filt | grep -E 'boost::|ur_rtde::|std::__' || true
+   ```
+
+Rhino can run from a non-standard volume path. UR.RTDE does not depend on `/Applications`; what matters is the plugin folder that contains `UR.RTDE.dll` and its native runtime assets.
 
 ## Connection Issues
 
@@ -58,9 +88,10 @@ cp -r runtimes/osx-arm64/native/*.dylib bin/Debug/net8.0/
 1. [OK] Robot is powered on
 2. [OK] Robot is on same network as computer
 3. [OK] Ping robot IP: `ping 192.168.1.100`
-4. [OK] Port 30004 is open (RTDE protocol)
-5. [OK] Firewall allows connection
-6. [OK] Robot is not in "Local" mode (requires "Remote" mode)
+4. [OK] Port 30004 is open (RTDE receive)
+5. [OK] Port 30003 is open (RTDE control — required for `RTDEControl`, MoveJ, etc.)
+6. [OK] Firewall allows connection
+7. [OK] Robot is not in "Local" mode for hardware (URSim Docker can use Local Control with bypass flags)
 
 **Test connection**:
 ```bash
@@ -68,7 +99,15 @@ cp -r runtimes/osx-arm64/native/*.dylib bin/Debug/net8.0/
 Test-NetConnection -ComputerName 192.168.1.100 -Port 30004
 
 # macOS/Linux
+nc -zv 192.168.1.100 30003
 nc -zv 192.168.1.100 30004
+```
+
+**URSim Docker**: publish `30003` and `30004` to the host. From the repo root:
+
+```bash
+docker compose -f docker/ursim/docker-compose.yml up -d
+nc -zv 127.0.0.1 30003
 ```
 
 ### Connection drops during operation

@@ -11,7 +11,7 @@
 ### macOS (arm64)
 - Xcode Command Line Tools
 - CMake 3.15+ (`brew install cmake`)
-- Boost 1.70+ (`brew install boost`)
+- Boost 1.85 preferred for Rhino 8 package builds (`brew install boost@1.85` if available; newer Homebrew Boost may require CMake target adjustments)
 - Git
 
 ## Step 1: Clone and Build ur_rtde
@@ -32,11 +32,19 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF
 cmake --build . --config Release
 cmake --install . --prefix ../install
 
-# macOS
+# macOS dynamic developer build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDINGS=OFF
 make -j$(sysctl -n hw.ncpu)
 make install DESTDIR=../install
 ```
+
+For the packaged macOS arm64 runtime used in Rhino 8, prefer the static-Boost build script:
+
+```bash
+native/build-macos-arm64-static-boost.sh
+```
+
+That script builds upstream `ur_rtde` as a static archive, links it into `libur_rtde_c_api.dylib`, hides C++/Boost symbols, verifies the facade does not link separate `librtde` or Boost dylibs, then installs only `libur_rtde_c_api.dylib` into `src/UR.RTDE/runtimes/osx-arm64/native/`.
 
 ## Step 2: Build C API Facade
 
