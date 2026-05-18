@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="URSimTests (macOS Debug)" type="DotNetProject" factoryName=".NET Project">
+    <option name="PROJECT_PATH" value="$PROJECT_DIR$/samples/URSimTests/URSimTests.csproj" />
+    <option name="PROJECT_TFM" value="net8.0" />
+    <option name="RUNTIME_IDENTIFIER" value="osx-arm64" />
+    <option name="EXECUTABLE_PATH" value="$PROJECT_DIR$/samples/URSimTests/bin/Debug/net8.0/osx-arm64/URSimTests.dll" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/samples/URSimTests/bin/Debug/net8.0/osx-arm64" />
+    <option name="CONFIGURATION" value="Debug" />
+    <option name="USE_EXTERNAL_CONSOLE" value="0" />
+    <option name="USE_MONO" value="0" />
+    <option name="RUNTIME_ARGUMENTS" value="" />
+    <method v="2">
+      <option name="BuildProject" enabled="true">
+        <option name="CONFIGURATION" value="Debug" />
+        <option name="PROJECT_NAME" value="URSimTests" />
+        <option name="TARGET_FRAMEWORK" value="net8.0" />
+      </option>
+    </method>
+  </configuration>
+</component>
