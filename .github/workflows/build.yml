@@ -6,38 +6,31 @@ on:
   pull_request:
     branches: [ main, master ]
 
+env:
+  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+  VCPKG_COMMIT: a42af01b72c28a8e1d7b48107b33e4f286a55ef6
+
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup vcpkg
-        id: setup-vcpkg
-        uses: lukka/run-vcpkg@v11
+      - name: Checkout vcpkg
+        uses: actions/checkout@v4
         with:
-          vcpkgGitCommitId: 'a42af01b72c28a8e1d7b48107b33e4f286a55ef6'
+          repository: microsoft/vcpkg
+          ref: ${{ env.VCPKG_COMMIT }}
+          path: vcpkg
+
+      - name: Bootstrap vcpkg
+        run: .\vcpkg\bootstrap-vcpkg.bat
 
       - name: Install Boost
         run: |
-          $vcpkgRoot = "${{ steps.setup-vcpkg.outputs.vcpkgRoot }}"
-          if ([string]::IsNullOrWhiteSpace($vcpkgRoot)) {
-            $vcpkgRoot = $env:VCPKG_ROOT
-          }
-          if ([string]::IsNullOrWhiteSpace($vcpkgRoot)) {
-            Write-Error "vcpkg root path is not set. Check setup-vcpkg step outputs."
-            exit 1
-          }
-          $env:VCPKG_EXE = Join-Path $vcpkgRoot "vcpkg.exe"
-          if (-not (Test-Path $env:VCPKG_EXE)) {
-            Write-Error "vcpkg.exe not found at: $env:VCPKG_EXE"
-            exit 1
-          }
-          & "$env:VCPKG_EXE" install boost-system:x64-windows boost-thread:x64-windows
+          & "$env:VCPKG_ROOT\vcpkg.exe" install boost-system:x64-windows boost-thread:x64-windows
 
       - name: Clone and build ur_rtde
-        env:
-          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}
         run: |
           $urRtdeCommit = "68ac4e18f357f8e9361bfc5eef344acd9aa241be"
           git clone --recursive https://gitlab.com/sdurobotics/ur_rtde.git
@@ -51,8 +44,6 @@ jobs:
           cmake --install . --prefix ../install
 
       - name: Build C API Facade
-        env:
-          VCPKG_ROOT: ${{ steps.setup-vcpkg.outputs.vcpkgRoot }}
         run: |
           cd native/facade
           mkdir build
