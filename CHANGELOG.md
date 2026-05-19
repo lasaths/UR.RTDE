@@ -18,6 +18,17 @@ Package versions **track upstream [ur_rtde](https://gitlab.com/sdurobotics/ur_rt
 
 ---
 
+## [1.6.3.10] - 2026-05-19
+
+### Added
+- **osx-x64** native runtime (`libur_rtde_c_api.dylib`) for macOS Intel and Rosetta (x86_64) Rhino 8 / .NET 8 hosts.
+- `native/build-macos-x64-static-boost.sh` — static Boost + ur_rtde facade build for x86_64.
+
+### Fixed
+- `MacOsNativeLibraryBootstrap` resolves `runtimes/osx-arm64` or `runtimes/osx-x64` before a flat dylib beside the assembly, and skips a flat Mach-O image when CPU type does not match the process (avoids arm64-on-Rosetta load failures).
+
+---
+
 ## [1.6.3.9] - 2026-05-18
 
 ### Fixed

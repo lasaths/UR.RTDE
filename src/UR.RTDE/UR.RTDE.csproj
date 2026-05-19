@@ -10,7 +10,7 @@
     
     <!-- Package metadata -->
     <PackageId>UR.RTDE</PackageId>
-    <Version>1.6.3.9</Version>
+    <Version>1.6.3.10</Version>
     <Authors>Lasath Siriwardena</Authors>
     <Company>ICD University of Stuttgart</Company>
     <Description>C# wrapper for Universal Robots RTDE interface using native P/Invoke. Works with Rhino 7 (.NET 4.8) and Rhino 8 (.NET 8) on Windows and macOS. Zero dependencies - all native libraries included.</Description>
@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/lasaths/UR.RTDE</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>v1.6.3.9: macOS Apple Silicon validated (single libur_rtde_c_api.dylib, thread-safe bootstrap); restore win-x64 native runtimes in package. v1.6.3.8: macOS unified facade and bootstrap race fix.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.6.3.10: macOS x86_64 (Intel/Rosetta Rhino) osx-x64 runtime; RID-first native loader. v1.6.3.9: macOS arm64 validated; win-x64 runtimes restored.</PackageReleaseNotes>
     
     <!-- Enable native library packaging -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>

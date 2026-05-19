@@ -8,10 +8,12 @@
 - Boost 1.70+ (install via vcpkg recommended)
 - Git
 
-### macOS (arm64)
+### macOS (arm64 and x86_64)
 - Xcode Command Line Tools
 - CMake 3.15+ (`brew install cmake`)
 - Boost 1.85 preferred for Rhino 8 package builds (`brew install boost@1.85` if available; newer Homebrew Boost may require CMake target adjustments)
+- **arm64**: Apple Silicon Homebrew (`/opt/homebrew`)
+- **x86_64** (Intel Mac or Rosetta Rhino): x86_64 Boost (`/usr/local` Homebrew, or `brew fetch --arch=intel boost@1.85` and set `BOOST_ROOT` to the extracted prefix)
 - Git
 
 ## Step 1: Clone and Build ur_rtde
@@ -38,13 +40,18 @@ make -j$(sysctl -n hw.ncpu)
 make install DESTDIR=../install
 ```
 
-For the packaged macOS arm64 runtime used in Rhino 8, prefer the static-Boost build script:
+For packaged macOS runtimes used in Rhino 8, prefer the static-Boost build scripts:
 
 ```bash
+# Apple Silicon Rhino (arm64 process)
 native/build-macos-arm64-static-boost.sh
+
+# Intel / Rosetta Rhino (x86_64 process)
+native/build-macos-x64-static-boost.sh
+# On Apple Silicon without /usr/local Homebrew, set BOOST_ROOT to an x86_64 Boost prefix first.
 ```
 
-That script builds upstream `ur_rtde` as a static archive, links it into `libur_rtde_c_api.dylib`, hides C++/Boost symbols, verifies the facade does not link separate `librtde` or Boost dylibs, then installs only `libur_rtde_c_api.dylib` into `src/UR.RTDE/runtimes/osx-arm64/native/`.
+Each script builds upstream `ur_rtde` as a static archive, links it into `libur_rtde_c_api.dylib`, hides C++/Boost symbols, verifies the facade does not link separate `librtde` or Boost dylibs, then installs only `libur_rtde_c_api.dylib` into `src/UR.RTDE/runtimes/osx-arm64/native/` or `osx-x64/native/`.
 
 ## Step 2: Build C API Facade
 
@@ -70,6 +77,7 @@ After build:
 Copy these to:
 - **Windows**: `../../src/UR.RTDE/runtimes/win-x64/native/`
 - **macOS arm64**: `../../src/UR.RTDE/runtimes/osx-arm64/native/`
+- **macOS x64**: `../../src/UR.RTDE/runtimes/osx-x64/native/`
 
 ## Troubleshooting
 

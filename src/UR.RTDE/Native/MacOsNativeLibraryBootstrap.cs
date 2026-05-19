@@ -115,24 +115,58 @@ namespace UR.RTDE.Native
 
         private static string? ResolveLibraryPath(string assemblyDir, string fileName)
         {
-            string rid = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "osx-arm64" : "osx-x64";
+            string primaryRid = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "osx-arm64" : "osx-x64";
+            string secondaryRid = primaryRid == "osx-arm64" ? "osx-x64" : "osx-arm64";
             string runtimes = Path.Combine(assemblyDir, "runtimes");
 
+            // Prefer RID-specific runtimes first so a wrong-arch flat copy (e.g. arm64 beside the GHA on Rosetta) is not chosen.
             string[] candidates =
             {
+                Path.Combine(runtimes, primaryRid, "native", fileName),
+                Path.Combine(runtimes, secondaryRid, "native", fileName),
                 Path.Combine(assemblyDir, fileName),
-                Path.Combine(runtimes, rid, "native", fileName),
-                Path.Combine(runtimes, "osx-arm64", "native", fileName),
-                Path.Combine(runtimes, "osx-x64", "native", fileName)
             };
 
             foreach (string candidate in candidates)
             {
-                if (File.Exists(candidate))
+                if (!File.Exists(candidate))
+                    continue;
+
+                if (candidate.StartsWith(runtimes, StringComparison.Ordinal) || IsMachOCompatibleWithProcess(candidate))
                     return candidate;
             }
 
             return null;
+        }
+
+        private static bool IsMachOCompatibleWithProcess(string path)
+        {
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var header = new byte[8];
+                if (stream.Read(header, 0, header.Length) < 8)
+                    return false;
+
+                // MH_MAGIC_64 (little-endian): 0xFE 0xED 0xFA 0xCF; cputype at offset 4.
+                if (header[0] != 0xCF || header[1] != 0xFA || header[2] != 0xED || header[3] != 0xFE)
+                    return true;
+
+                uint cpuType = BitConverter.ToUInt32(header, 4);
+                const uint CPU_TYPE_X86_64 = 0x01000007;
+                const uint CPU_TYPE_ARM64 = 0x0100000c;
+
+                return RuntimeInformation.ProcessArchitecture switch
+                {
+                    Architecture.X64 => cpuType == CPU_TYPE_X86_64,
+                    Architecture.Arm64 => cpuType == CPU_TYPE_ARM64,
+                    _ => true,
+                };
+            }
+            catch
+            {
+                return true;
+            }
         }
     }
 }
